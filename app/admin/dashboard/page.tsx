@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Edit, LogOut, Settings } from "lucide-react"
+import { Plus, Edit, LogOut, Settings, Globe } from "lucide-react"
 
 interface Product {
   id: string
@@ -117,6 +117,14 @@ export default function AdminDashboard() {
             <p className="text-amber-600">Manage your café menu and products</p>
           </div>
           <div className="flex gap-3">
+            <Button
+              onClick={() => router.push("/admin/about-us")}
+              variant="outline"
+              className="flex items-center gap-2 bg-transparent"
+            >
+              <Globe className="h-4 w-4" />
+              About Us
+            </Button>
             <Button
               onClick={() => router.push("/admin/configuration")}
               variant="outline"

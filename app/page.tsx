@@ -37,12 +37,46 @@ interface Subcategory {
   category_id: string
 }
 
+interface AboutUsConfig {
+  about_text_en: string
+  about_text_es: string
+  instagram_url: string
+  instagram_handle: string
+  email_address: string
+  website_url: string
+  website_display: string
+  restaurant_name: string
+  restaurant_url: string
+  restaurant_description_en: string
+  restaurant_description_es: string
+  museum_name: string
+  museum_url: string
+  museum_description_en: string
+  museum_description_es: string
+  connect_header_en: string
+  connect_header_es: string
+  restaurant_header_en: string
+  restaurant_header_es: string
+  culture_header_en: string
+  culture_header_es: string
+  follow_text_en: string
+  follow_text_es: string
+  contact_text_en: string
+  contact_text_es: string
+  website_text_en: string
+  website_text_es: string
+  visit_text_en: string
+  visit_text_es: string
+}
+
 export default function BloomCafe() {
   const [currentView, setCurrentView] = useState<"home" | "menu" | "about" | string>("home")
   const [categories, setCategories] = useState<Category[]>([])
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
+  const [aboutUsConfig, setAboutUsConfig] = useState<AboutUsConfig | null>(null)
+  const [aboutUsLoading, setAboutUsLoading] = useState(false)
 
   const { language, setLanguage } = useLanguage()
   const { t } = useTranslation(language)
@@ -50,6 +84,9 @@ export default function BloomCafe() {
   useEffect(() => {
     if (currentView === "menu") {
       fetchMenuData()
+    }
+    if (currentView === "about") {
+      fetchAboutUsData()
     }
   }, [currentView])
 
@@ -74,6 +111,23 @@ export default function BloomCafe() {
       console.error("Error fetching menu data:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchAboutUsData = async () => {
+    if (aboutUsConfig) return // Don't fetch if already loaded
+
+    setAboutUsLoading(true)
+    try {
+      const response = await fetch("/api/admin/about-us")
+      if (response.ok) {
+        const data = await response.json()
+        setAboutUsConfig(data)
+      }
+    } catch (error) {
+      console.error("Error fetching About Us data:", error)
+    } finally {
+      setAboutUsLoading(false)
     }
   }
 
@@ -193,16 +247,7 @@ export default function BloomCafe() {
                   return category.image_url
                 }
 
-                const name = category.name.toLowerCase()
-                if (name.includes("drink") || name.includes("bebida")) {
-                  return "/images/drinks-illustration.jpg"
-                } else if (name.includes("sweet") || name.includes("dulce")) {
-                  return "/images/sweet-illustration.jpg"
-                } else if (name.includes("salty") || name.includes("salado")) {
-                  return "/images/salty-illustration.jpg"
-                } else {
-                  return "/images/food-illustration.jpg"
-                }
+                return "/images/coffee-cup-icon.jpg"
               }
 
               const getCategoryDescription = () => {
@@ -233,9 +278,6 @@ export default function BloomCafe() {
                             alt={`${category.name} illustration`}
                             fill
                             className="object-contain"
-                            style={{
-                              filter: category.image_url ? "none" : "hue-rotate(200deg) saturate(0.8) brightness(0.4)",
-                            }}
                           />
                         </div>
                       </div>
@@ -274,16 +316,7 @@ export default function BloomCafe() {
         return category.image_url
       }
 
-      const name = category.name.toLowerCase()
-      if (name.includes("drink") || name.includes("bebida")) {
-        return "/images/drinks-illustration.jpg"
-      } else if (name.includes("sweet") || name.includes("dulce")) {
-        return "/images/sweet-illustration.jpg"
-      } else if (name.includes("salty") || name.includes("salado")) {
-        return "/images/salty-illustration.jpg"
-      } else {
-        return "/images/food-illustration.jpg"
-      }
+      return "/images/coffee-cup-icon.jpg"
     }
 
     return (
@@ -306,9 +339,6 @@ export default function BloomCafe() {
                     alt={`${category.name} icon`}
                     fill
                     className="object-contain"
-                    style={{
-                      filter: category.image_url ? "none" : "hue-rotate(200deg) saturate(0.8) brightness(0.4)",
-                    }}
                   />
                 </div>
                 <h1 className="text-2xl font-bold text-bloom-blue tracking-tight">{category.name}</h1>
@@ -457,156 +487,201 @@ export default function BloomCafe() {
     )
   }
 
-  const renderAbout = () => (
-    <div className="min-h-screen bg-gradient-to-br from-bloom-ivory via-bloom-cream to-bloom-beige">
-      <div className="bg-bloom-ivory/95 backdrop-blur-sm border-b border-bloom-beige/60 p-4 sticky top-0 z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+  const renderAbout = () => {
+    if (aboutUsLoading) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-bloom-ivory via-bloom-cream to-bloom-beige flex items-center justify-center">
+          <div className="text-lg text-bloom-blue font-medium">Loading...</div>
+        </div>
+      )
+    }
+
+    const getConfigValue = (key: keyof AboutUsConfig, fallback?: string) => {
+      return aboutUsConfig?.[key] || fallback || ""
+    }
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-bloom-ivory via-bloom-cream to-bloom-beige">
+        <div className="bg-bloom-ivory/95 backdrop-blur-sm border-b border-bloom-beige/60 p-4 sticky top-0 z-10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentView("home")}
+                className="text-bloom-blue hover:text-bloom-blue/80 hover:bg-bloom-cream/50 btn-chic"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <h1 className="text-2xl font-bold text-bloom-blue tracking-tight">{t("aboutUs")}</h1>
+            </div>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setCurrentView("home")}
-              className="text-bloom-blue hover:text-bloom-blue/80 hover:bg-bloom-cream/50 btn-chic"
+              onClick={() => setLanguage(language === "en" ? "es" : "en")}
+              className="text-bloom-blue/70 hover:text-bloom-blue hover:bg-bloom-cream/50 transition-all duration-300 flex items-center gap-2 btn-chic"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <Globe className="w-4 h-4" />
+              <span className="text-sm font-medium">{language === "en" ? "ES" : "EN"}</span>
             </Button>
-            <h1 className="text-2xl font-bold text-bloom-blue tracking-tight">{t("aboutUs")}</h1>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLanguage(language === "en" ? "es" : "en")}
-            className="text-bloom-blue/70 hover:text-bloom-blue hover:bg-bloom-cream/50 transition-all duration-300 flex items-center gap-2 btn-chic"
-          >
-            <Globe className="w-4 h-4" />
-            <span className="text-sm font-medium">{language === "en" ? "ES" : "EN"}</span>
-          </Button>
         </div>
-      </div>
 
-      <div className="p-6 space-y-6">
-        <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
-          <CardContent className="p-6">
-            <p className="text-bloom-blue leading-relaxed text-base font-light">{t("aboutText")}</p>
-          </CardContent>
-        </Card>
+        <div className="p-6 space-y-6">
+          <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
+            <CardContent className="p-6">
+              <p className="text-bloom-blue leading-relaxed text-base font-light">
+                {getConfigValue(language === "en" ? "about_text_en" : "about_text_es", t("aboutText"))}
+              </p>
+            </CardContent>
+          </Card>
 
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-bloom-blue tracking-tight">{t("connectWithUs")}</h3>
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-bloom-blue tracking-tight">
+              {getConfigValue(language === "en" ? "connect_header_en" : "connect_header_es", t("connectWithUs"))}
+            </h3>
 
-          <div className="grid gap-4">
+            <div className="grid gap-4">
+              <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
+                <CardContent className="p-4">
+                  <a
+                    href={getConfigValue("instagram_url", "https://instagram.com/bloom")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
+                  >
+                    <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                      <Instagram className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold tracking-tight">
+                        {getConfigValue(language === "en" ? "follow_text_en" : "follow_text_es", t("followUs"))}
+                      </h4>
+                      <p className="text-sm text-bloom-blue/70 font-light">
+                        {getConfigValue("instagram_handle", "@bloom")}
+                      </p>
+                    </div>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
+                <CardContent className="p-4">
+                  <a
+                    href={`mailto:${getConfigValue("email_address", "hello@bloom.com")}`}
+                    className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
+                  >
+                    <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                      <Mail className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold tracking-tight">
+                        {getConfigValue(language === "en" ? "contact_text_en" : "contact_text_es", t("contactUs"))}
+                      </h4>
+                      <p className="text-sm text-bloom-blue/70 font-light">
+                        {getConfigValue("email_address", "hello@bloom.com")}
+                      </p>
+                    </div>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
+                <CardContent className="p-4">
+                  <a
+                    href={getConfigValue("website_url", "https://bloom.com")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
+                  >
+                    <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                      <Globe className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold tracking-tight">
+                        {getConfigValue(language === "en" ? "website_text_en" : "website_text_es", t("ourWebsite"))}
+                      </h4>
+                      <p className="text-sm text-bloom-blue/70 font-light">
+                        {getConfigValue("website_display", "bloom.com")}
+                      </p>
+                    </div>
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </CardContent>
+              </Card>
+            </div>
+
+            <h3 className="text-xl font-semibold text-bloom-blue pt-4 tracking-tight">
+              {getConfigValue(
+                language === "en" ? "restaurant_header_en" : "restaurant_header_es",
+                t("visitOurRestaurant"),
+              )}
+            </h3>
+
             <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
               <CardContent className="p-4">
                 <a
-                  href="https://instagram.com/bloom"
+                  href={getConfigValue("restaurant_url", "https://blossom-restaurant.com")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
                 >
                   <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                    <Instagram className="w-6 h-6" />
+                    <MapPin className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold tracking-tight">{t("followUs")}</h4>
-                    <p className="text-sm text-bloom-blue/70 font-light">@bloom</p>
+                    <h4 className="font-semibold tracking-tight">
+                      {getConfigValue(language === "en" ? "visit_text_en" : "visit_text_es", t("visitBlossom"))}
+                    </h4>
+                    <p className="text-sm text-bloom-blue/70 font-light">
+                      {getConfigValue(
+                        language === "en" ? "restaurant_description_en" : "restaurant_description_es",
+                        language === "en" ? "Our Michelin restaurant" : "Nuestro restaurante Michelin",
+                      )}
+                    </p>
                   </div>
                   <ExternalLink className="w-4 h-4" />
                 </a>
               </CardContent>
             </Card>
 
-            <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
-              <CardContent className="p-4">
-                <a
-                  href="mailto:hello@bloom.com"
-                  className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
-                >
-                  <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold tracking-tight">{t("contactUs")}</h4>
-                    <p className="text-sm text-bloom-blue/70 font-light">hello@bloom.com</p>
-                  </div>
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              </CardContent>
-            </Card>
+            <h3 className="text-xl font-semibold text-bloom-blue pt-4 tracking-tight">
+              {getConfigValue(language === "en" ? "culture_header_en" : "culture_header_es", t("exploreArt"))}
+            </h3>
 
             <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
               <CardContent className="p-4">
                 <a
-                  href="https://bloom.com"
+                  href={getConfigValue("museum_url", "https://museum.com")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
                 >
                   <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                    <Globe className="w-6 h-6" />
+                    <div className="w-6 h-6 bg-bloom-blue rounded-sm"></div>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold tracking-tight">{t("ourWebsite")}</h4>
-                    <p className="text-sm text-bloom-blue/70 font-light">bloom.com</p>
+                    <h4 className="font-semibold tracking-tight">{getConfigValue("museum_name", t("museum"))}</h4>
+                    <p className="text-sm text-bloom-blue/70 font-light">
+                      {getConfigValue(
+                        language === "en" ? "museum_description_en" : "museum_description_es",
+                        language === "en"
+                          ? "Discover our cultural exhibitions"
+                          : "Descubre nuestras exposiciones culturales",
+                      )}
+                    </p>
                   </div>
                   <ExternalLink className="w-4 h-4" />
                 </a>
               </CardContent>
             </Card>
           </div>
-
-          <h3 className="text-xl font-semibold text-bloom-blue pt-4 tracking-tight">{t("visitOurRestaurant")}</h3>
-
-          <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <CardContent className="p-4">
-              <a
-                href="https://blossom-restaurant.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
-              >
-                <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                  <MapPin className="w-6 h-6" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold tracking-tight">{t("visitBlossom")}</h4>
-                  <p className="text-sm text-bloom-blue/70 font-light">
-                    {language === "en" ? "Our Michelin restaurant" : "Nuestro restaurante Michelin"}
-                  </p>
-                </div>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </CardContent>
-          </Card>
-
-          <h3 className="text-xl font-semibold text-bloom-blue pt-4 tracking-tight">{t("exploreArt")}</h3>
-
-          <Card className="bg-bloom-ivory/90 backdrop-blur-sm elegant-border hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out">
-            <CardContent className="p-4">
-              <a
-                href="https://museum.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
-              >
-                <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                  <div className="w-6 h-6 bg-bloom-blue rounded-sm"></div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold tracking-tight">{t("museum")}</h4>
-                  <p className="text-sm text-bloom-blue/70 font-light">
-                    {language === "en"
-                      ? "Discover our cultural exhibitions"
-                      : "Descubre nuestras exposiciones culturales"}
-                  </p>
-                </div>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            </CardContent>
-          </Card>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <>
