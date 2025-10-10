@@ -271,8 +271,8 @@ export default function BloomCafe() {
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 flex items-center justify-center flex-shrink-0">
-                        <div className="w-16 h-16 relative">
+                      <div className="w-24 h-24 flex items-center justify-center flex-shrink-0">
+                        <div className="w-24 h-24 relative">
                           <Image
                             src={getIllustration() || "/placeholder.svg"}
                             alt={`${category.name} illustration`}
@@ -333,7 +333,7 @@ export default function BloomCafe() {
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 relative flex-shrink-0">
+                <div className="w-16 h-16 relative flex-shrink-0">
                   <Image
                     src={getIllustration() || "/placeholder.svg"}
                     alt={`${category.name} icon`}
@@ -550,8 +550,8 @@ export default function BloomCafe() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
                   >
-                    <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                      <Instagram className="w-6 h-6" />
+                    <div className="w-16 h-16 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                      <Instagram className="w-7 h-7" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold tracking-tight">
@@ -572,8 +572,8 @@ export default function BloomCafe() {
                     href={`mailto:${getConfigValue("email_address", "hello@bloom.com")}`}
                     className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
                   >
-                    <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                      <Mail className="w-6 h-6" />
+                    <div className="w-16 h-16 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                      <Mail className="w-7 h-7" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold tracking-tight">
@@ -596,8 +596,8 @@ export default function BloomCafe() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
                   >
-                    <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                      <Globe className="w-6 h-6" />
+                    <div className="w-16 h-16 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                      <Globe className="w-7 h-7" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold tracking-tight">
@@ -628,8 +628,8 @@ export default function BloomCafe() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
                 >
-                  <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                    <MapPin className="w-6 h-6" />
+                  <div className="w-16 h-16 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                    <MapPin className="w-7 h-7" />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-semibold tracking-tight">
@@ -659,8 +659,8 @@ export default function BloomCafe() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 text-bloom-blue hover:text-bloom-blue/80 transition-colors"
                 >
-                  <div className="w-12 h-12 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
-                    <div className="w-6 h-6 bg-bloom-blue rounded-sm"></div>
+                  <div className="w-16 h-16 bg-bloom-cream/80 rounded-xl flex items-center justify-center">
+                    <div className="w-7 h-7 bg-bloom-blue rounded-sm"></div>
                   </div>
                   <div className="flex-1">
                     <h4 className="font-semibold tracking-tight">{getConfigValue("museum_name", t("museum"))}</h4>

@@ -150,13 +150,26 @@ export default function AdminDashboard() {
           <TabsContent value="products" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold text-gray-800">Products</h2>
-              <Button
-                onClick={() => router.push("/admin/products/new")}
-                className="bg-amber-600 hover:bg-amber-700 flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add Product
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    // Trigger a data refresh
+                    fetchData()
+                  }}
+                  variant="outline"
+                  className="flex items-center gap-2 bg-transparent"
+                >
+                  <Settings className="h-4 w-4" />
+                  Save Changes
+                </Button>
+                <Button
+                  onClick={() => router.push("/admin/products/new")}
+                  className="bg-amber-600 hover:bg-amber-700 flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Product
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-4">

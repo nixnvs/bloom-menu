@@ -57,6 +57,7 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
   }, [params])
 
   const handleImageChange = (url: string | null) => {
+    console.log("[v0] Image URL changed to:", url)
     setImageUrl(url || "")
   }
 
@@ -67,19 +68,24 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
     setIsLoading(true)
     setError("")
 
+    const updateData = {
+      name,
+      active,
+      display_order: displayOrder,
+      image_url: imageUrl || null,
+    }
+    console.log("[v0] Submitting category update with data:", updateData)
+
     try {
       const response = await fetch(`/api/admin/categories/${category.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          active,
-          display_order: displayOrder,
-          image_url: imageUrl || null,
-        }),
+        body: JSON.stringify(updateData),
       })
 
       if (response.ok) {
+        const updatedCategory = await response.json()
+        console.log("[v0] Category updated successfully:", updatedCategory)
         router.push("/admin/dashboard?tab=categories")
       } else {
         const data = await response.json()
