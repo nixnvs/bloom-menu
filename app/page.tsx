@@ -271,8 +271,8 @@ export default function BloomCafe() {
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-6">
-                      <div className="w-24 h-24 flex items-center justify-center flex-shrink-0">
-                        <div className="w-24 h-24 relative">
+                      <div className="w-32 h-32 flex items-center justify-center flex-shrink-0">
+                        <div className="w-32 h-32 relative">
                           <Image
                             src={getIllustration() || "/placeholder.svg"}
                             alt={`${category.name} illustration`}
@@ -333,7 +333,7 @@ export default function BloomCafe() {
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 relative flex-shrink-0">
+                <div className="w-20 h-20 relative flex-shrink-0">
                   <Image
                     src={getIllustration() || "/placeholder.svg"}
                     alt={`${category.name} icon`}
