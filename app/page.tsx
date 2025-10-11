@@ -232,7 +232,7 @@ export default function BloomCafe() {
         </div>
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 md:p-6 space-y-3 md:space-y-4">
         {loading ? (
           <div className="text-center py-8">
             <div className="text-lg text-bloom-blue font-medium">{t("loading")}</div>
@@ -269,10 +269,10 @@ export default function BloomCafe() {
                   className="cursor-pointer hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out bg-bloom-ivory/90 backdrop-blur-sm elegant-border"
                   onClick={() => setCurrentView(category.id)}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-6">
-                      <div className="w-64 h-64 flex items-center justify-center flex-shrink-0">
-                        <div className="w-64 h-64 relative">
+                  <CardContent className="p-2 md:p-3">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-32 h-32 md:w-48 md:h-48 relative">
                           <Image
                             src={getIllustration() || "/placeholder.svg"}
                             alt={`${category.name} illustration`}
@@ -281,13 +281,15 @@ export default function BloomCafe() {
                           />
                         </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-bloom-blue mb-1 tracking-tight">{category.name}</h3>
-                        <p className="text-bloom-blue/70 font-light text-sm">{getCategoryDescription()}</p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg md:text-xl font-semibold text-bloom-blue mb-1 tracking-tight">
+                          {category.name}
+                        </h3>
+                        <p className="text-bloom-blue/70 font-light text-xs md:text-sm">{getCategoryDescription()}</p>
                       </div>
                       <Badge
                         variant="secondary"
-                        className="bg-bloom-beige/80 text-bloom-blue font-medium text-xs px-3 py-1"
+                        className="bg-bloom-beige/80 text-bloom-blue font-medium text-xs px-2 md:px-3 py-1"
                       >
                         {categoryProducts.length}
                       </Badge>
@@ -332,8 +334,8 @@ export default function BloomCafe() {
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <div className="flex items-center gap-4">
-                <div className="w-40 h-40 relative flex-shrink-0">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="w-20 h-20 md:w-32 md:h-32 relative flex-shrink-0">
                   <Image
                     src={getIllustration() || "/placeholder.svg"}
                     alt={`${category.name} icon`}
@@ -341,7 +343,7 @@ export default function BloomCafe() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-2xl font-bold text-bloom-blue tracking-tight">{category.name}</h1>
+                <h1 className="text-xl md:text-2xl font-bold text-bloom-blue tracking-tight">{category.name}</h1>
               </div>
             </div>
             <Button
@@ -356,7 +358,7 @@ export default function BloomCafe() {
           </div>
         </div>
 
-        <div className="p-4 space-y-6">
+        <div className="p-3 md:p-4 space-y-4 md:space-y-6">
           {categoryProducts.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-bloom-blue/70">{t("noProducts")}</p>
