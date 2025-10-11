@@ -42,6 +42,8 @@ export default function AdminDashboard() {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("products")
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -99,6 +101,23 @@ export default function AdminDashboard() {
     router.push("/admin/login")
   }
 
+  const handleSaveChanges = async () => {
+    setIsSaving(true)
+    setSaveSuccess(false)
+
+    try {
+      await fetchData()
+      setSaveSuccess(true)
+
+      // Reset success state after 2 seconds
+      setTimeout(() => setSaveSuccess(false), 2000)
+    } catch (error) {
+      console.error("Error saving changes:", error)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -152,15 +171,15 @@ export default function AdminDashboard() {
               <h2 className="text-2xl font-semibold text-gray-800">Products</h2>
               <div className="flex gap-3">
                 <Button
-                  onClick={() => {
-                    // Trigger a data refresh
-                    fetchData()
-                  }}
+                  onClick={handleSaveChanges}
                   variant="outline"
-                  className="flex items-center gap-2 bg-transparent"
+                  disabled={isSaving}
+                  className={`flex items-center gap-2 transition-colors ${
+                    saveSuccess ? "bg-green-50 border-green-500 text-green-700" : "bg-transparent"
+                  }`}
                 >
                   <Settings className="h-4 w-4" />
-                  Save Changes
+                  {isSaving ? "Saving..." : saveSuccess ? "Saved!" : "Save Changes"}
                 </Button>
                 <Button
                   onClick={() => router.push("/admin/products/new")}
