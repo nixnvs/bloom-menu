@@ -334,8 +334,8 @@ export default function BloomCafe() {
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <div className="flex items-center gap-2 md:gap-4">
-                <div className="w-20 h-20 md:w-32 md:h-32 relative flex-shrink-0">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-12 h-12 md:w-16 md:h-16 relative flex-shrink-0">
                   <Image
                     src={getIllustration() || "/placeholder.svg"}
                     alt={`${category.name} icon`}
@@ -359,7 +359,7 @@ export default function BloomCafe() {
         </div>
 
         <div className="p-3 md:p-4 space-y-4 md:space-y-6">
-          {categoryProducts.length === 0 ? (
+          {categoryProducts.length === 0 && categorySubcategories.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-bloom-blue/70">{t("noProducts")}</p>
             </div>
@@ -367,8 +367,6 @@ export default function BloomCafe() {
             <>
               {categorySubcategories.map((subcategory) => {
                 const subcategoryProducts = getProductsBySubcategory(subcategory.id)
-
-                if (subcategoryProducts.length === 0) return null
 
                 return (
                   <div key={subcategory.id} className="space-y-4">
@@ -383,45 +381,55 @@ export default function BloomCafe() {
                       </Badge>
                     </div>
 
-                    {subcategoryProducts.map((product) => (
-                      <Card
-                        key={product.id}
-                        className="hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out bg-bloom-ivory/90 backdrop-blur-sm elegant-border"
-                      >
-                        <CardContent className="p-5">
-                          <div className="flex justify-between items-start gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-semibold text-bloom-blue text-lg tracking-tight">{product.name}</h3>
-                                {product.has_gluten && (
-                                  <Badge variant="outline" className="text-xs border-bloom-blue/30 text-bloom-blue">
-                                    {t("gluten")}
-                                  </Badge>
+                    {subcategoryProducts.length === 0 ? (
+                      <div className="text-center py-4">
+                        <p className="text-bloom-blue/50 text-sm italic">
+                          {language === "en" ? "No products yet" : "Sin productos aún"}
+                        </p>
+                      </div>
+                    ) : (
+                      subcategoryProducts.map((product) => (
+                        <Card
+                          key={product.id}
+                          className="hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out bg-bloom-ivory/90 backdrop-blur-sm elegant-border"
+                        >
+                          <CardContent className="p-5">
+                            <div className="flex justify-between items-start gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h3 className="font-semibold text-bloom-blue text-lg tracking-tight">
+                                    {product.name}
+                                  </h3>
+                                  {product.has_gluten && (
+                                    <Badge variant="outline" className="text-xs border-bloom-blue/30 text-bloom-blue">
+                                      {t("gluten")}
+                                    </Badge>
+                                  )}
+                                </div>
+                                {product.description && (
+                                  <p className="text-bloom-blue/80 text-sm mt-1 leading-relaxed font-light">
+                                    {product.description}
+                                  </p>
+                                )}
+                                {product.notes && (
+                                  <p className="text-bloom-blue/60 text-xs mt-2 italic">{product.notes}</p>
+                                )}
+                                {product.allergies && (
+                                  <p className="text-bloom-blue/60 text-xs mt-1">
+                                    <span className="font-medium">{t("allergens")}:</span> {product.allergies}
+                                  </p>
                                 )}
                               </div>
-                              {product.description && (
-                                <p className="text-bloom-blue/80 text-sm mt-1 leading-relaxed font-light">
-                                  {product.description}
-                                </p>
-                              )}
-                              {product.notes && (
-                                <p className="text-bloom-blue/60 text-xs mt-2 italic">{product.notes}</p>
-                              )}
-                              {product.allergies && (
-                                <p className="text-bloom-blue/60 text-xs mt-1">
-                                  <span className="font-medium">{t("allergens")}:</span> {product.allergies}
-                                </p>
-                              )}
+                              <div className="text-right">
+                                <span className="text-xl font-light text-bloom-blue tracking-tight">
+                                  ${product.price.toFixed(2)}
+                                </span>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-xl font-light text-bloom-blue tracking-tight">
-                                ${product.price.toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
                   </div>
                 )
               })}
