@@ -103,6 +103,7 @@ export default function BloomCafe() {
         const categoriesData = await categoriesRes.json()
         const subcategoriesData = await subcategoriesRes.json()
         const productsData = await productsRes.json()
+
         setCategories(categoriesData)
         setSubcategories(subcategoriesData)
         setProducts(productsData)
