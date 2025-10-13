@@ -38,6 +38,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const supabase = await createClient()
 
+    console.log("[v0] Creating product with data:", {
+      name: body.name,
+      category_id: body.category_id,
+      subcategory_id: body.subcategory_id,
+      active: body.active,
+    })
+
     const { data, error } = await supabase
       .from("products")
       .insert({
@@ -57,13 +64,20 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error("Database error:", error)
+      console.error("[v0] Database error creating product:", error)
       return NextResponse.json({ error: "Failed to create product" }, { status: 500 })
     }
 
+    console.log("[v0] Product created successfully:", {
+      id: data.id,
+      name: data.name,
+      category_id: data.category_id,
+      subcategory_id: data.subcategory_id,
+    })
+
     return NextResponse.json(data)
   } catch (error) {
-    console.error("API error:", error)
+    console.error("[v0] API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

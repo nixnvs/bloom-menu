@@ -151,13 +151,16 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     }
 
     try {
+      const subcategoryId =
+        formData.subcategory_id === "none" || !formData.subcategory_id ? null : formData.subcategory_id
+
       const response = await fetch(`/api/admin/products/${product.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           price,
-          subcategory_id: formData.subcategory_id || null,
+          subcategory_id: subcategoryId,
           image_url: formData.image_url || null,
         }),
       })

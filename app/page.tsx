@@ -93,6 +93,8 @@ export default function BloomCafe() {
   const fetchMenuData = async () => {
     setLoading(true)
     try {
+      console.log("[v0] Fetching menu data...")
+
       const [categoriesRes, subcategoriesRes, productsRes] = await Promise.all([
         fetch("/api/menu/categories"),
         fetch("/api/menu/subcategories"),
@@ -104,12 +106,18 @@ export default function BloomCafe() {
         const subcategoriesData = await subcategoriesRes.json()
         const productsData = await productsRes.json()
 
+        console.log("[v0] Menu data received:", {
+          categories: categoriesData.length,
+          subcategories: subcategoriesData.length,
+          products: productsData.length,
+        })
+
         setCategories(categoriesData)
         setSubcategories(subcategoriesData)
         setProducts(productsData)
       }
     } catch (error) {
-      console.error("Error fetching menu data:", error)
+      console.error("[v0] Error fetching menu data:", error)
     } finally {
       setLoading(false)
     }
@@ -141,7 +149,14 @@ export default function BloomCafe() {
   }
 
   const getProductsBySubcategory = (subcategoryId: string) => {
-    return products.filter((product) => product.subcategory_id === subcategoryId && product.active)
+    const filtered = products.filter((product) => product.subcategory_id === subcategoryId && product.active)
+    console.log("[v0] getProductsBySubcategory:", {
+      subcategoryId,
+      totalProducts: products.length,
+      filteredProducts: filtered.length,
+      filtered: filtered.map((p) => ({ name: p.name, subcategory_id: p.subcategory_id })),
+    })
+    return filtered
   }
 
   const getProductsWithoutSubcategory = (categoryId: string) => {
