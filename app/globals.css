@@ -9,7 +9,7 @@
   --bloom-soft-beige: #d4c4a8; /* Soft beige for secondary elements */
   --bloom-cream: #f5f1e8; /* Light cream for backgrounds */
   --bloom-ivory: #fefcf7; /* Pure ivory for cards and highlights */
-  --bloom-deep-blue: #2b4c7e; /* Deep blue for elegant accents */
+  --bloom-deep-blue: #9c8d7e; /* Warm taupe for elegant accents */
 
   /* Design system colors using chic palette */
   --background: #fefcf7; /* Ivory background */
@@ -18,20 +18,20 @@
   --card-foreground: #2c2419; /* Dark brown for card text */
   --popover: #fefcf7; /* Ivory for popover backgrounds */
   --popover-foreground: #2c2419; /* Dark brown for popover text */
-  --primary: #2b4c7e; /* Deep blue for primary actions */
+  --primary: #9c8d7e; /* Warm taupe for primary actions */
   --primary-foreground: #fefcf7; /* Ivory text on primary */
   --secondary: #8b7355; /* Warm taupe for secondary elements */
   --secondary-foreground: #fefcf7; /* Ivory text on secondary */
   --muted: #f5f1e8; /* Light cream for muted elements */
   --muted-foreground: #6b5d4f; /* Medium brown for muted text */
-  --accent: #2b4c7e; /* Deep blue for interactive elements */
+  --accent: #9c8d7e; /* Warm taupe for interactive elements */
   --accent-foreground: #fefcf7; /* Ivory text on accent */
   --destructive: #b85450; /* Muted red that complements the palette */
   --destructive-foreground: #fefcf7; /* Ivory text on destructive */
   --border: #e8dcc6; /* Soft border color */
   --input: #fefcf7; /* Ivory input fields */
-  --ring: #2b4c7e; /* Deep blue for focus rings */
-  --chart-1: #2b4c7e; /* Primary deep blue */
+  --ring: #9c8d7e; /* Warm taupe for focus rings */
+  --chart-1: #9c8d7e; /* Primary warm taupe */
   --chart-2: #8b7355; /* Warm taupe */
   --chart-3: #d4c4a8; /* Soft beige */
   --chart-4: #f5f1e8; /* Light cream */
@@ -39,12 +39,12 @@
   --radius: 0.5rem; /* Elegant rounded corners */
   --sidebar: #fefcf7;
   --sidebar-foreground: #2c2419;
-  --sidebar-primary: #2b4c7e;
+  --sidebar-primary: #9c8d7e;
   --sidebar-primary-foreground: #fefcf7;
   --sidebar-accent: #8b7355;
   --sidebar-accent-foreground: #fefcf7;
   --sidebar-border: #e8dcc6;
-  --sidebar-ring: #2b4c7e;
+  --sidebar-ring: #9c8d7e;
 }
 
 .dark {
@@ -186,7 +186,7 @@
     color: #fefcf7;
   }
   .text-bloom-blue {
-    color: #2b4c7e;
+    color: #9c8d7e;
   }
   .bg-bloom-taupe {
     background-color: #8b7355;
@@ -201,7 +201,7 @@
     background-color: #fefcf7;
   }
   .bg-bloom-blue {
-    background-color: #2b4c7e;
+    background-color: #9c8d7e;
   }
   .border-bloom-taupe {
     border-color: #8b7355;
@@ -213,7 +213,7 @@
     border-color: #f5f1e8;
   }
   .border-bloom-blue {
-    border-color: #2b4c7e;
+    border-color: #9c8d7e;
   }
 
   /* Added chic design utilities */

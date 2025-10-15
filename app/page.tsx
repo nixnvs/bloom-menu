@@ -351,7 +351,7 @@ export default function BloomCafe() {
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="w-12 h-12 md:w-16 md:h-16 relative flex-shrink-0">
+                <div className="w-24 h-24 md:w-32 md:h-32 relative flex-shrink-0">
                   <Image
                     src={getIllustration() || "/placeholder.svg"}
                     alt={`${category.name} icon`}
