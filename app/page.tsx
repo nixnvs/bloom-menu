@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Settings, Globe, ExternalLink, Instagram, Mail, MapPin } from "lucide-react"
+import { ArrowLeft, Settings, Globe, ExternalLink, Instagram, Mail, MapPin, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -77,6 +77,7 @@ export default function BloomCafe() {
   const [loading, setLoading] = useState(false)
   const [aboutUsConfig, setAboutUsConfig] = useState<AboutUsConfig | null>(null)
   const [aboutUsLoading, setAboutUsLoading] = useState(false)
+  const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set())
 
   const { language, setLanguage } = useLanguage()
   const { t } = useTranslation(language)
@@ -161,6 +162,18 @@ export default function BloomCafe() {
 
   const getProductsWithoutSubcategory = (categoryId: string) => {
     return products.filter((product) => product.category_id === categoryId && !product.subcategory_id && product.active)
+  }
+
+  const toggleSubcategory = (subcategoryId: string) => {
+    setExpandedSubcategories((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(subcategoryId)) {
+        newSet.delete(subcategoryId)
+      } else {
+        newSet.add(subcategoryId)
+      }
+      return newSet
+    })
   }
 
   const renderHome = () => (
@@ -383,10 +396,19 @@ export default function BloomCafe() {
             <>
               {categorySubcategories.map((subcategory) => {
                 const subcategoryProducts = getProductsBySubcategory(subcategory.id)
+                const isExpanded = expandedSubcategories.has(subcategory.id)
 
                 return (
                   <div key={subcategory.id} className="space-y-4">
-                    <div className="flex items-center gap-4 px-2">
+                    <button
+                      onClick={() => toggleSubcategory(subcategory.id)}
+                      className="w-full flex items-center gap-4 px-2 hover:bg-bloom-cream/30 rounded-lg transition-colors duration-200 py-2"
+                    >
+                      <ChevronDown
+                        className={`w-5 h-5 text-bloom-blue transition-transform duration-200 flex-shrink-0 ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
+                      />
                       <h2 className="text-lg font-semibold text-bloom-blue tracking-tight">{subcategory.name}</h2>
                       <div className="flex-1 h-px dotted-divider text-bloom-blue/20"></div>
                       <Badge
@@ -395,56 +417,63 @@ export default function BloomCafe() {
                       >
                         {subcategoryProducts.length}
                       </Badge>
-                    </div>
+                    </button>
 
-                    {subcategoryProducts.length === 0 ? (
-                      <div className="text-center py-4">
-                        <p className="text-bloom-blue/50 text-sm italic">
-                          {language === "en" ? "No products yet" : "Sin productos aún"}
-                        </p>
-                      </div>
-                    ) : (
-                      subcategoryProducts.map((product) => (
-                        <Card
-                          key={product.id}
-                          className="hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out bg-bloom-ivory/90 backdrop-blur-sm elegant-border"
-                        >
-                          <CardContent className="p-5">
-                            <div className="flex justify-between items-start gap-4">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <h3 className="font-semibold text-bloom-blue text-lg tracking-tight">
-                                    {product.name}
-                                  </h3>
-                                  {product.has_gluten && (
-                                    <Badge variant="outline" className="text-xs border-bloom-blue/30 text-bloom-blue">
-                                      {t("gluten")}
-                                    </Badge>
-                                  )}
+                    {isExpanded && (
+                      <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        {subcategoryProducts.length === 0 ? (
+                          <div className="text-center py-4">
+                            <p className="text-bloom-blue/50 text-sm italic">
+                              {language === "en" ? "No products yet" : "Sin productos aún"}
+                            </p>
+                          </div>
+                        ) : (
+                          subcategoryProducts.map((product) => (
+                            <Card
+                              key={product.id}
+                              className="hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out bg-bloom-ivory/90 backdrop-blur-sm elegant-border"
+                            >
+                              <CardContent className="p-5">
+                                <div className="flex justify-between items-start gap-4">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <h3 className="font-semibold text-bloom-blue text-lg tracking-tight">
+                                        {product.name}
+                                      </h3>
+                                      {product.has_gluten && (
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs border-bloom-blue/30 text-bloom-blue"
+                                        >
+                                          {t("gluten")}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    {product.description && (
+                                      <p className="text-bloom-blue/80 text-sm mt-1 leading-relaxed font-light">
+                                        {product.description}
+                                      </p>
+                                    )}
+                                    {product.notes && (
+                                      <p className="text-bloom-blue/60 text-xs mt-2 italic">{product.notes}</p>
+                                    )}
+                                    {product.allergies && (
+                                      <p className="text-bloom-blue/60 text-xs mt-1">
+                                        <span className="font-medium">{t("allergens")}:</span> {product.allergies}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="text-right">
+                                    <span className="text-xl font-light text-bloom-blue tracking-tight">
+                                      ${product.price.toFixed(2)}
+                                    </span>
+                                  </div>
                                 </div>
-                                {product.description && (
-                                  <p className="text-bloom-blue/80 text-sm mt-1 leading-relaxed font-light">
-                                    {product.description}
-                                  </p>
-                                )}
-                                {product.notes && (
-                                  <p className="text-bloom-blue/60 text-xs mt-2 italic">{product.notes}</p>
-                                )}
-                                {product.allergies && (
-                                  <p className="text-bloom-blue/60 text-xs mt-1">
-                                    <span className="font-medium">{t("allergens")}:</span> {product.allergies}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="text-right">
-                                <span className="text-xl font-light text-bloom-blue tracking-tight">
-                                  ${product.price.toFixed(2)}
-                                </span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
+                              </CardContent>
+                            </Card>
+                          ))
+                        )}
+                      </div>
                     )}
                   </div>
                 )
