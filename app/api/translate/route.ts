@@ -1,10 +1,11 @@
 import { generateText } from "ai"
 import { neon } from "@neondatabase/serverless"
 
-const sql = neon(process.env.DATABASE_URL!)
-
 export async function POST(request: Request) {
   try {
+    // Initialize database connection at request time, not module load time
+    const sql = neon(process.env.NEON_DATABASE_URL!)
+
     const { text, targetLanguage, sourceLanguage = "es" } = await request.json()
 
     if (!text || !targetLanguage) {
