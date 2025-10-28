@@ -8,6 +8,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useTranslation } from "@/lib/i18n"
+import { translateText } from "@/lib/translation"
 
 interface Product {
   id: string
@@ -85,6 +86,19 @@ export default function BloomCafe() {
   const { language, setLanguage } = useLanguage()
   const { t } = useTranslation(language)
 
+  const [translatedContent, setTranslatedContent] = useState<{
+    categories: Map<string, { name: string; description?: string }>
+    subcategories: Map<string, { name: string; description?: string }>
+    products: Map<string, { name: string; description: string; notes: string; allergies: string }>
+    cafeDescription: string
+  }>({
+    categories: new Map(),
+    subcategories: new Map(),
+    products: new Map(),
+    cafeDescription: "",
+  })
+  const [isTranslating, setIsTranslating] = useState(false)
+
   useEffect(() => {
     fetchCafeConfig()
   }, [])
@@ -97,6 +111,22 @@ export default function BloomCafe() {
       fetchAboutUsData()
     }
   }, [currentView])
+
+  useEffect(() => {
+    if (language === "es") {
+      // Reset translations when switching back to Spanish (original language)
+      setTranslatedContent({
+        categories: new Map(),
+        subcategories: new Map(),
+        products: new Map(),
+        cafeDescription: "",
+      })
+      return
+    }
+
+    // Translate content when switching to English
+    translateAllContent()
+  }, [language, categories, subcategories, products, cafeConfig])
 
   const fetchMenuData = async () => {
     setLoading(true)
@@ -201,6 +231,126 @@ export default function BloomCafe() {
     })
   }
 
+  const getCategoryName = (category: Category) => {
+    if (language === "es") return category.name
+    return translatedContent.categories.get(category.id)?.name || category.name
+  }
+
+  const getCategoryDescription = (category: Category) => {
+    if (language === "es") return category.description
+
+    const translated = translatedContent.categories.get(category.id)?.description
+    if (translated) return translated
+
+    // Fallback to original description
+    return category.description
+  }
+
+  const getSubcategoryName = (subcategory: Subcategory) => {
+    if (language === "es") return subcategory.name
+    return translatedContent.subcategories.get(subcategory.id)?.name || subcategory.name
+  }
+
+  const getSubcategoryDescription = (subcategory: Subcategory) => {
+    if (language === "es") return subcategory.description
+    return translatedContent.subcategories.get(subcategory.id)?.description || subcategory.description
+  }
+
+  const getProductName = (product: Product) => {
+    if (language === "es") return product.name
+    return translatedContent.products.get(product.id)?.name || product.name
+  }
+
+  const getProductDescription = (product: Product) => {
+    if (language === "es") return product.description
+    return translatedContent.products.get(product.id)?.description || product.description
+  }
+
+  const getProductNotes = (product: Product) => {
+    if (language === "es") return product.notes
+    return translatedContent.products.get(product.id)?.notes || product.notes
+  }
+
+  const getProductAllergies = (product: Product) => {
+    if (language === "es") return product.allergies
+    return translatedContent.products.get(product.id)?.allergies || product.allergies
+  }
+
+  const getCafeDescription = () => {
+    if (language === "es") return cafeConfig?.cafe_description || t("tagline")
+    return translatedContent.cafeDescription || cafeConfig?.cafe_description || t("tagline")
+  }
+
+  const translateAllContent = async () => {
+    if (language === "es") return // Don't translate if in Spanish
+
+    setIsTranslating(true)
+    console.log("[v0] Starting translation to", language)
+
+    try {
+      // Translate categories
+      const categoryTranslations = new Map()
+      for (const category of categories) {
+        const translatedName = await translateText(category.name, language, "es")
+        const translatedDescription = category.description
+          ? await translateText(category.description, language, "es")
+          : undefined
+        categoryTranslations.set(category.id, {
+          name: translatedName,
+          description: translatedDescription,
+        })
+      }
+
+      // Translate subcategories
+      const subcategoryTranslations = new Map()
+      for (const subcategory of subcategories) {
+        const translatedName = await translateText(subcategory.name, language, "es")
+        const translatedDescription = subcategory.description
+          ? await translateText(subcategory.description, language, "es")
+          : undefined
+        subcategoryTranslations.set(subcategory.id, {
+          name: translatedName,
+          description: translatedDescription,
+        })
+      }
+
+      // Translate products
+      const productTranslations = new Map()
+      for (const product of products) {
+        const translatedName = await translateText(product.name, language, "es")
+        const translatedDescription = product.description
+          ? await translateText(product.description, language, "es")
+          : ""
+        const translatedNotes = product.notes ? await translateText(product.notes, language, "es") : ""
+        const translatedAllergies = product.allergies ? await translateText(product.allergies, language, "es") : ""
+
+        productTranslations.set(product.id, {
+          name: translatedName,
+          description: translatedDescription,
+          notes: translatedNotes,
+          allergies: translatedAllergies,
+        })
+      }
+
+      // Translate cafe description
+      const cafeDescription = cafeConfig?.cafe_description || t("tagline")
+      const translatedCafeDescription = await translateText(cafeDescription, language, "es")
+
+      setTranslatedContent({
+        categories: categoryTranslations,
+        subcategories: subcategoryTranslations,
+        products: productTranslations,
+        cafeDescription: translatedCafeDescription,
+      })
+
+      console.log("[v0] Translation complete")
+    } catch (error) {
+      console.error("[v0] Translation error:", error)
+    } finally {
+      setIsTranslating(false)
+    }
+  }
+
   const renderHome = () => (
     <div className="min-h-screen bg-gradient-to-br from-bloom-ivory via-bloom-cream to-bloom-beige flex flex-col items-center justify-center p-6 relative">
       <div className="absolute top-6 right-6">
@@ -222,7 +372,7 @@ export default function BloomCafe() {
           </div>
           <div className="text-bloom-blue/80 text-base font-light tracking-wide">
             {(() => {
-              const description = cafeConfig?.cafe_description || t("tagline")
+              const description = getCafeDescription()
               // Check if description contains "by" to split it
               const byIndex = description.toLowerCase().indexOf(" by ")
               if (byIndex !== -1) {
@@ -309,70 +459,78 @@ export default function BloomCafe() {
             <div className="text-lg text-bloom-blue font-medium">{t("loading")}</div>
           </div>
         ) : (
-          categories
-            .filter((category) => category.active)
-            .map((category) => {
-              const categoryProducts = getProductsByCategory(category.id)
-              const getIllustration = () => {
-                if (category.image_url) {
-                  return category.image_url
+          <>
+            {isTranslating && language !== "es" && (
+              <div className="text-center py-4 bg-bloom-cream/50 rounded-lg">
+                <p className="text-sm text-bloom-blue/70">
+                  {language === "en" ? "Translating menu..." : "Traduciendo menú..."}
+                </p>
+              </div>
+            )}
+
+            {categories
+              .filter((category) => category.active)
+              .map((category) => {
+                const categoryProducts = getProductsByCategory(category.id)
+                const getIllustration = () => {
+                  if (category.image_url) {
+                    return category.image_url
+                  }
+
+                  return "/images/coffee-cup-icon.jpg"
                 }
 
-                return "/images/coffee-cup-icon.jpg"
-              }
-
-              const getCategoryDescription = () => {
-                if (category.description) {
-                  return category.description
+                const getDefaultCategoryDescription = () => {
+                  const name = category.name.toLowerCase()
+                  if (name.includes("drink") || name.includes("bebida")) {
+                    return t("drinks")
+                  } else if (name.includes("sweet") || name.includes("dulce")) {
+                    return t("sweet")
+                  } else if (name.includes("salty") || name.includes("salado")) {
+                    return t("salty")
+                  } else {
+                    return t("food")
+                  }
                 }
 
-                const name = category.name.toLowerCase()
-                if (name.includes("drink") || name.includes("bebida")) {
-                  return t("drinks")
-                } else if (name.includes("sweet") || name.includes("dulce")) {
-                  return t("sweet")
-                } else if (name.includes("salty") || name.includes("salado")) {
-                  return t("salty")
-                } else {
-                  return t("food")
-                }
-              }
-
-              return (
-                <Card
-                  key={category.id}
-                  className="cursor-pointer hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out bg-bloom-ivory/90 backdrop-blur-sm elegant-border"
-                  onClick={() => setCurrentView(category.id)}
-                >
-                  <CardContent className="p-2 md:p-3">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="flex-shrink-0">
-                        <div className="w-32 h-32 md:w-48 md:h-48 relative">
-                          <Image
-                            src={getIllustration() || "/placeholder.svg"}
-                            alt={`${category.name} illustration`}
-                            fill
-                            className="object-contain"
-                          />
+                return (
+                  <Card
+                    key={category.id}
+                    className="cursor-pointer hover:shadow-lg hover:shadow-black/5 hover:scale-[1.02] transition-all duration-300 ease-out bg-bloom-ivory/90 backdrop-blur-sm elegant-border"
+                    onClick={() => setCurrentView(category.id)}
+                  >
+                    <CardContent className="p-2 md:p-3">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-32 h-32 md:w-48 md:h-48 relative">
+                            <Image
+                              src={getIllustration() || "/placeholder.svg"}
+                              alt={`${getCategoryName(category)} illustration`}
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg md:text-xl font-semibold text-bloom-blue mb-1 tracking-tight">
+                            {getCategoryName(category)}
+                          </h3>
+                          <p className="text-bloom-blue/70 font-light text-xs md:text-sm">
+                            {getCategoryDescription(category) || getDefaultCategoryDescription()}
+                          </p>
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className="bg-bloom-beige/80 text-bloom-blue font-medium text-xs px-2 md:px-3 py-1"
+                        >
+                          {categoryProducts.length}
+                        </Badge>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg md:text-xl font-semibold text-bloom-blue mb-1 tracking-tight">
-                          {category.name}
-                        </h3>
-                        <p className="text-bloom-blue/70 font-light text-xs md:text-sm">{getCategoryDescription()}</p>
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className="bg-bloom-beige/80 text-bloom-blue font-medium text-xs px-2 md:px-3 py-1"
-                      >
-                        {categoryProducts.length}
-                      </Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })
+                    </CardContent>
+                  </Card>
+                )
+              })}
+          </>
         )}
       </div>
     </div>
@@ -413,15 +571,17 @@ export default function BloomCafe() {
                 <div className="w-24 h-24 md:w-32 md:h-32 relative flex-shrink-0">
                   <Image
                     src={getIllustration() || "/placeholder.svg"}
-                    alt={`${category.name} icon`}
+                    alt={`${getCategoryName(category)} icon`}
                     fill
                     className="object-contain"
                   />
                 </div>
                 <div>
-                  <h1 className="text-xl md:text-2xl font-bold text-bloom-blue tracking-tight">{category.name}</h1>
-                  {category.description && (
-                    <p className="text-sm text-bloom-blue/60 font-light mt-0.5">{category.description}</p>
+                  <h1 className="text-xl md:text-2xl font-bold text-bloom-blue tracking-tight">
+                    {getCategoryName(category)}
+                  </h1>
+                  {getCategoryDescription(category) && (
+                    <p className="text-sm text-bloom-blue/60 font-light mt-0.5">{getCategoryDescription(category)}</p>
                   )}
                 </div>
               </div>
@@ -439,6 +599,14 @@ export default function BloomCafe() {
         </div>
 
         <div className="p-3 md:p-4 space-y-4 md:space-y-6">
+          {isTranslating && language !== "es" && (
+            <div className="text-center py-4 bg-bloom-cream/50 rounded-lg">
+              <p className="text-sm text-bloom-blue/70">
+                {language === "en" ? "Translating products..." : "Traduciendo productos..."}
+              </p>
+            </div>
+          )}
+
           {categoryProducts.length === 0 && categorySubcategories.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-bloom-blue/70">{t("noProducts")}</p>
@@ -461,9 +629,13 @@ export default function BloomCafe() {
                         }`}
                       />
                       <div className="flex-1 text-left">
-                        <h2 className="text-lg font-semibold text-bloom-blue tracking-tight">{subcategory.name}</h2>
-                        {subcategory.description && (
-                          <p className="text-sm text-bloom-blue/60 font-light mt-0.5">{subcategory.description}</p>
+                        <h2 className="text-lg font-semibold text-bloom-blue tracking-tight">
+                          {getSubcategoryName(subcategory)}
+                        </h2>
+                        {getSubcategoryDescription(subcategory) && (
+                          <p className="text-sm text-bloom-blue/60 font-light mt-0.5">
+                            {getSubcategoryDescription(subcategory)}
+                          </p>
                         )}
                       </div>
                       <div className="flex-1 h-px dotted-divider text-bloom-blue/20"></div>
@@ -494,7 +666,7 @@ export default function BloomCafe() {
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
                                       <h3 className="font-semibold text-bloom-blue text-lg tracking-tight">
-                                        {product.name}
+                                        {getProductName(product)}
                                       </h3>
                                       {product.has_gluten && (
                                         <Badge
@@ -505,17 +677,20 @@ export default function BloomCafe() {
                                         </Badge>
                                       )}
                                     </div>
-                                    {product.description && (
+                                    {getProductDescription(product) && (
                                       <p className="text-bloom-blue/80 text-sm mt-1 leading-relaxed font-light">
-                                        {product.description}
+                                        {getProductDescription(product)}
                                       </p>
                                     )}
-                                    {product.notes && (
-                                      <p className="text-bloom-blue/60 text-xs mt-2 italic">{product.notes}</p>
+                                    {getProductNotes(product) && (
+                                      <p className="text-bloom-blue/60 text-xs mt-2 italic">
+                                        {getProductNotes(product)}
+                                      </p>
                                     )}
-                                    {product.allergies && (
+                                    {getProductAllergies(product) && (
                                       <p className="text-bloom-blue/60 text-xs mt-1">
-                                        <span className="font-medium">{t("allergens")}:</span> {product.allergies}
+                                        <span className="font-medium">{t("allergens")}:</span>{" "}
+                                        {getProductAllergies(product)}
                                       </p>
                                     )}
                                   </div>
@@ -561,22 +736,26 @@ export default function BloomCafe() {
                         <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-bloom-blue text-lg tracking-tight">{product.name}</h3>
+                              <h3 className="font-semibold text-bloom-blue text-lg tracking-tight">
+                                {getProductName(product)}
+                              </h3>
                               {product.has_gluten && (
                                 <Badge variant="outline" className="text-xs border-bloom-blue/30 text-bloom-blue">
                                   {t("gluten")}
                                 </Badge>
                               )}
                             </div>
-                            {product.description && (
+                            {getProductDescription(product) && (
                               <p className="text-bloom-blue/80 text-sm mt-1 leading-relaxed font-light">
-                                {product.description}
+                                {getProductDescription(product)}
                               </p>
                             )}
-                            {product.notes && <p className="text-bloom-blue/60 text-xs mt-2 italic">{product.notes}</p>}
-                            {product.allergies && (
+                            {getProductNotes(product) && (
+                              <p className="text-bloom-blue/60 text-xs mt-2 italic">{getProductNotes(product)}</p>
+                            )}
+                            {getProductAllergies(product) && (
                               <p className="text-bloom-blue/60 text-xs mt-1">
-                                <span className="font-medium">{t("allergens")}:</span> {product.allergies}
+                                <span className="font-medium">{t("allergens")}:</span> {getProductAllergies(product)}
                               </p>
                             )}
                           </div>
