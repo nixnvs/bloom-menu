@@ -23,6 +23,7 @@ export default function ConfigurationPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
   const router = useRouter()
 
   useEffect(() => {
@@ -58,10 +59,18 @@ export default function ConfigurationPage() {
   const saveConfiguration = async () => {
     setSaving(true)
     setError("")
+    setSuccessMessage("")
+
+    console.log("[v0] Saving configuration...", config)
 
     try {
-      const promises = config.map((item) =>
-        fetch(`/api/admin/configuration/${item.key}`, {
+      const promises = config.map((item) => {
+        console.log(`[v0] Updating ${item.key}:`, {
+          value: item.value,
+          image_url: item.image_url,
+          description: item.description,
+        })
+        return fetch(`/api/admin/configuration/${item.key}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -69,20 +78,25 @@ export default function ConfigurationPage() {
             image_url: item.image_url,
             description: item.description,
           }),
-        }),
-      )
+        })
+      })
 
       const results = await Promise.all(promises)
       const failed = results.filter((r) => !r.ok)
 
       if (failed.length > 0) {
-        setError("Some configuration items failed to save")
+        console.error("[v0] Failed to save some items:", failed)
+        const errorDetails = await Promise.all(failed.map((r) => r.text()))
+        console.error("[v0] Error details:", errorDetails)
+        setError(`Failed to save ${failed.length} item(s). Check console for details.`)
       } else {
-        // Show success feedback
-        setError("")
+        console.log("[v0] All configuration items saved successfully")
+        setSuccessMessage("All changes saved successfully!")
+        setTimeout(() => setSuccessMessage(""), 3000)
       }
     } catch (err) {
-      setError("Failed to save configuration")
+      console.error("[v0] Error saving configuration:", err)
+      setError("Failed to save configuration. Check console for details.")
     } finally {
       setSaving(false)
     }
@@ -118,6 +132,19 @@ export default function ConfigurationPage() {
             {saving ? "Saving..." : "Save All Changes"}
           </Button>
         </div>
+
+        {successMessage && (
+          <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>{successMessage}</span>
+          </div>
+        )}
 
         <Card>
           <CardHeader>

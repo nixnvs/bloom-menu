@@ -26,8 +26,9 @@ interface Product {
 interface Category {
   id: string
   name: string
+  description?: string // Added description field to Category interface
   active: boolean
-  image_url?: string // Added image_url field to Category interface
+  image_url?: string
 }
 
 interface Subcategory {
@@ -79,9 +80,14 @@ export default function BloomCafe() {
   const [aboutUsConfig, setAboutUsConfig] = useState<AboutUsConfig | null>(null)
   const [aboutUsLoading, setAboutUsLoading] = useState(false)
   const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set())
+  const [cafeConfig, setCafeConfig] = useState<{ cafe_name?: string; cafe_description?: string } | null>(null)
 
   const { language, setLanguage } = useLanguage()
   const { t } = useTranslation(language)
+
+  useEffect(() => {
+    fetchCafeConfig()
+  }, [])
 
   useEffect(() => {
     if (currentView === "menu") {
@@ -142,6 +148,24 @@ export default function BloomCafe() {
     }
   }
 
+  const fetchCafeConfig = async () => {
+    try {
+      console.log("[v0] Fetching cafe configuration...")
+      const response = await fetch("/api/admin/configuration")
+      if (response.ok) {
+        const data = await response.json()
+        console.log("[v0] Cafe configuration received:", data)
+        const config: any = {}
+        data.forEach((item: any) => {
+          config[item.key] = item.value
+        })
+        setCafeConfig(config)
+      }
+    } catch (error) {
+      console.error("[v0] Error fetching cafe configuration:", error)
+    }
+  }
+
   const getProductsByCategory = (categoryId: string) => {
     return products.filter((product) => product.category_id === categoryId && product.active)
   }
@@ -196,7 +220,9 @@ export default function BloomCafe() {
           <div className="w-48 h-20 mx-auto relative">
             <Image src="/images/bloom-logo.png" alt="Bloom Logo" fill className="object-contain" priority />
           </div>
-          <p className="text-bloom-blue/80 text-base font-light tracking-wide text-balance">{t("tagline")}</p>
+          <p className="text-bloom-blue/80 text-base font-light tracking-wide text-balance">
+            {cafeConfig?.cafe_description || t("tagline")}
+          </p>
         </div>
 
         <div className="pt-4 space-y-4">
@@ -281,6 +307,10 @@ export default function BloomCafe() {
               }
 
               const getCategoryDescription = () => {
+                if (category.description) {
+                  return category.description
+                }
+
                 const name = category.name.toLowerCase()
                 if (name.includes("drink") || name.includes("bebida")) {
                   return t("drinks")
@@ -373,7 +403,12 @@ export default function BloomCafe() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-xl md:text-2xl font-bold text-bloom-blue tracking-tight">{category.name}</h1>
+                <div>
+                  <h1 className="text-xl md:text-2xl font-bold text-bloom-blue tracking-tight">{category.name}</h1>
+                  {category.description && (
+                    <p className="text-sm text-bloom-blue/60 font-light mt-0.5">{category.description}</p>
+                  )}
+                </div>
               </div>
             </div>
             <Button
@@ -694,7 +729,7 @@ export default function BloomCafe() {
                   </div>
                   <div className="flex-1">
                     <h4 className="font-semibold tracking-tight">
-                      {getConfigValue(language === "en" ? "visit_text_en" : "visit_text_es", t("visitBlossom"))}
+                      {getConfigValue("restaurant_name", t("blossomRestaurant"))}
                     </h4>
                     <p className="text-sm text-bloom-blue/70 font-light">
                       {getConfigValue(

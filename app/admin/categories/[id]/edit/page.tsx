@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { ArrowLeft, Trash2 } from "lucide-react"
@@ -15,6 +16,7 @@ import { ImageUpload } from "@/components/image-upload"
 interface Category {
   id: string
   name: string
+  description?: string
   active: boolean
   display_order: number
   image_url?: string
@@ -23,6 +25,7 @@ interface Category {
 export default function EditCategory({ params }: { params: Promise<{ id: string }> }) {
   const [category, setCategory] = useState<Category | null>(null)
   const [name, setName] = useState("")
+  const [description, setDescription] = useState("")
   const [active, setActive] = useState(true)
   const [displayOrder, setDisplayOrder] = useState(0)
   const [imageUrl, setImageUrl] = useState("")
@@ -40,6 +43,7 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
           const data = await response.json()
           setCategory(data)
           setName(data.name)
+          setDescription(data.description || "")
           setActive(data.active)
           setDisplayOrder(data.display_order)
           setImageUrl(data.image_url || "")
@@ -70,6 +74,7 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
 
     const updateData = {
       name,
+      description: description || null,
       active,
       display_order: displayOrder,
       image_url: imageUrl || null,
@@ -175,6 +180,20 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
                   required
                   placeholder="e.g., Drinks, Food, Desserts"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="e.g., Disponible de 8:00 AM a 10:00 PM"
+                  rows={3}
+                />
+                <p className="text-sm text-gray-500">
+                  Optional description for the category (e.g., schedule, special notes)
+                </p>
               </div>
 
               <div className="space-y-2">
