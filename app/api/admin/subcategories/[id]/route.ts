@@ -31,6 +31,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       .update({
         name: body.name,
         category_id: body.category_id,
+        description: body.description || null,
         active: body.active,
         display_order: body.display_order,
         image_url: body.image_url || null,

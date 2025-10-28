@@ -1,5 +1,7 @@
 "use client"
 
+import { Input } from "@/components/ui/input"
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -7,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Edit, LogOut, Settings, Globe } from "lucide-react"
+import { Plus, Edit, LogOut, Settings, Globe, Search, X } from "lucide-react"
 
 interface Product {
   id: string
@@ -20,6 +22,7 @@ interface Product {
   active: boolean
   category_id: string
   category_name: string
+  subcategory_id: string
 }
 
 interface Category {
@@ -44,10 +47,12 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("products")
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string>("")
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("")
   const router = useRouter()
 
   useEffect(() => {
-    // Check admin session
     const adminSession = localStorage.getItem("adminSession")
     if (!adminSession) {
       router.push("/admin/login")
@@ -109,7 +114,6 @@ export default function AdminDashboard() {
       await fetchData()
       setSaveSuccess(true)
 
-      // Reset success state after 2 seconds
       setTimeout(() => setSaveSuccess(false), 2000)
     } catch (error) {
       console.error("Error saving changes:", error)
@@ -117,6 +121,23 @@ export default function AdminDashboard() {
       setIsSaving(false)
     }
   }
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = !selectedCategory || product.category_id === selectedCategory
+    const matchesSubcategory = !selectedSubcategory || product.subcategory_id === selectedSubcategory
+    return matchesSearch && matchesCategory && matchesSubcategory
+  })
+
+  const clearFilters = () => {
+    setSearchTerm("")
+    setSelectedCategory("")
+    setSelectedSubcategory("")
+  }
+
+  const availableSubcategories = selectedCategory
+    ? subcategories.filter((sub) => sub.category_id === selectedCategory)
+    : subcategories
 
   if (loading) {
     return (
@@ -191,47 +212,137 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="grid gap-4">
-              {products.map((product) => (
-                <Card key={product.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{product.name}</h3>
-                          <Badge variant="secondary">{product.category_name}</Badge>
-                          <Badge variant={product.active ? "default" : "secondary"}>
-                            {product.active ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                        <p className="text-gray-600 mb-2">{product.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span className="font-semibold text-green-600">${product.price}</span>
-                          {product.has_gluten && <Badge variant="outline">Contains Gluten</Badge>}
-                          {product.allergies && <span>Allergies: {product.allergies}</span>}
-                        </div>
-                        {product.notes && <p className="text-sm text-gray-500 mt-2">Notes: {product.notes}</p>}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">Active</span>
-                          <Switch
-                            checked={product.active}
-                            onCheckedChange={(checked) => toggleProductActive(product.id, checked)}
-                          />
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+            <Card className="bg-white/80 backdrop-blur">
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        type="text"
+                        placeholder="Search products by name..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 pr-10"
+                      />
+                      {searchTerm && (
+                        <button
+                          onClick={() => setSearchTerm("")}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
-                          <Edit className="h-4 w-4" />
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <label className="text-sm font-medium text-gray-700 mb-1 block">Filter by Category</label>
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) => {
+                          setSelectedCategory(e.target.value)
+                          setSelectedSubcategory("") // Reset subcategory when category changes
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                      >
+                        <option value="">All Categories</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex-1">
+                      <label className="text-sm font-medium text-gray-700 mb-1 block">Filter by Subcategory</label>
+                      <select
+                        value={selectedSubcategory}
+                        onChange={(e) => setSelectedSubcategory(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        disabled={!selectedCategory && subcategories.length === 0}
+                      >
+                        <option value="">All Subcategories</option>
+                        {availableSubcategories.map((subcategory) => (
+                          <option key={subcategory.id} value={subcategory.id}>
+                            {subcategory.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {(searchTerm || selectedCategory || selectedSubcategory) && (
+                      <div className="flex items-end">
+                        <Button
+                          onClick={clearFilters}
+                          variant="outline"
+                          className="flex items-center gap-2 bg-transparent"
+                        >
+                          <X className="h-4 w-4" />
+                          Clear Filters
                         </Button>
                       </div>
-                    </div>
+                    )}
+                  </div>
+
+                  <div className="text-sm text-gray-600">
+                    Showing {filteredProducts.length} of {products.length} products
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid gap-4">
+              {filteredProducts.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <p className="text-gray-500">No products found matching your filters.</p>
                   </CardContent>
                 </Card>
-              ))}
+              ) : (
+                filteredProducts.map((product) => (
+                  <Card key={product.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold">{product.name}</h3>
+                            <Badge variant="secondary">{product.category_name}</Badge>
+                            <Badge variant={product.active ? "default" : "secondary"}>
+                              {product.active ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+                          <p className="text-gray-600 mb-2">{product.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span className="font-semibold text-green-600">${product.price}</span>
+                            {product.has_gluten && <Badge variant="outline">Contains Gluten</Badge>}
+                            {product.allergies && <span>Allergies: {product.allergies}</span>}
+                          </div>
+                          {product.notes && <p className="text-sm text-gray-500 mt-2">Notes: {product.notes}</p>}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">Active</span>
+                            <Switch
+                              checked={product.active}
+                              onCheckedChange={(checked) => toggleProductActive(product.id, checked)}
+                            />
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </TabsContent>
 

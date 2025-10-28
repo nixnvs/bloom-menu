@@ -35,6 +35,7 @@ interface Subcategory {
   name: string
   active: boolean
   category_id: string
+  description?: string // Added description field to Subcategory interface
 }
 
 interface AboutUsConfig {
@@ -409,7 +410,12 @@ export default function BloomCafe() {
                           isExpanded ? "rotate-180" : ""
                         }`}
                       />
-                      <h2 className="text-lg font-semibold text-bloom-blue tracking-tight">{subcategory.name}</h2>
+                      <div className="flex-1 text-left">
+                        <h2 className="text-lg font-semibold text-bloom-blue tracking-tight">{subcategory.name}</h2>
+                        {subcategory.description && (
+                          <p className="text-sm text-bloom-blue/60 font-light mt-0.5">{subcategory.description}</p>
+                        )}
+                      </div>
                       <div className="flex-1 h-px dotted-divider text-bloom-blue/20"></div>
                       <Badge
                         variant="secondary"

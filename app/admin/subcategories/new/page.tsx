@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft } from "lucide-react"
 import { ImageUpload } from "@/components/image-upload"
+import { Textarea } from "@/components/ui/textarea"
 
 interface Category {
   id: string
@@ -22,6 +23,7 @@ export default function NewSubcategory() {
   const [categories, setCategories] = useState<Category[]>([])
   const [name, setName] = useState("")
   const [categoryId, setCategoryId] = useState("")
+  const [description, setDescription] = useState("")
   const [active, setActive] = useState(true)
   const [displayOrder, setDisplayOrder] = useState(0)
   const [imageUrl, setImageUrl] = useState("")
@@ -70,6 +72,7 @@ export default function NewSubcategory() {
         body: JSON.stringify({
           name,
           category_id: categoryId,
+          description: description || null,
           active,
           display_order: displayOrder,
           image_url: imageUrl || null,
@@ -150,6 +153,20 @@ export default function NewSubcategory() {
                   required
                   placeholder="e.g., Coffee, Sweet, Wine"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="e.g., Disponible de 8:00 AM a 12:00 PM"
+                  rows={3}
+                />
+                <p className="text-sm text-gray-500">
+                  Optional: Add schedule, availability, or other information about this subcategory
+                </p>
               </div>
 
               <div className="space-y-2">
