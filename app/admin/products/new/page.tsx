@@ -282,7 +282,7 @@ export default function NewProduct() {
                     placeholder="Special preparation notes, customization options, etc."
                     rows={2}
                   />
-                  <p className="text-sm text-gray-500">e.g., "Available with oat milk", "Add extra shot for +$1"</p>
+                  <p className="text-sm text-gray-500">e.g., "Available with oat milk", "Add extra shot for +€1"</p>
                 </div>
 
                 <div className="space-y-2">

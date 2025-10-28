@@ -471,7 +471,7 @@ export default function BloomCafe() {
                                   </div>
                                   <div className="text-right">
                                     <span className="text-xl font-light text-bloom-blue tracking-tight">
-                                      ${product.price.toFixed(2)}
+                                      €{product.price.toFixed(2)}
                                     </span>
                                   </div>
                                 </div>
@@ -532,7 +532,7 @@ export default function BloomCafe() {
                           </div>
                           <div className="text-right">
                             <span className="text-xl font-light text-bloom-blue tracking-tight">
-                              ${product.price.toFixed(2)}
+                              €{product.price.toFixed(2)}
                             </span>
                           </div>
                         </div>

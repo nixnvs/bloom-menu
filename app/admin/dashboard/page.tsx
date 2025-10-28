@@ -316,7 +316,7 @@ export default function AdminDashboard() {
                           </div>
                           <p className="text-gray-600 mb-2">{product.description}</p>
                           <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span className="font-semibold text-green-600">${product.price}</span>
+                            <span className="font-semibold text-green-600">€{product.price}</span>
                             {product.has_gluten && <Badge variant="outline">Contains Gluten</Badge>}
                             {product.allergies && <span>Allergies: {product.allergies}</span>}
                           </div>
