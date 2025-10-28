@@ -220,9 +220,24 @@ export default function BloomCafe() {
           <div className="w-48 h-20 mx-auto relative">
             <Image src="/images/bloom-logo.png" alt="Bloom Logo" fill className="object-contain" priority />
           </div>
-          <p className="text-bloom-blue/80 text-base font-light tracking-wide text-balance">
-            {cafeConfig?.cafe_description || t("tagline")}
-          </p>
+          <div className="text-bloom-blue/80 text-base font-light tracking-wide">
+            {(() => {
+              const description = cafeConfig?.cafe_description || t("tagline")
+              // Check if description contains "by" to split it
+              const byIndex = description.toLowerCase().indexOf(" by ")
+              if (byIndex !== -1) {
+                const mainText = description.substring(0, byIndex)
+                const byText = description.substring(byIndex + 1) // +1 to skip the space
+                return (
+                  <>
+                    <div className="text-balance">{mainText}</div>
+                    <div className="text-sm mt-1 text-bloom-blue/70">{byText}</div>
+                  </>
+                )
+              }
+              return <div className="text-balance">{description}</div>
+            })()}
+          </div>
         </div>
 
         <div className="pt-4 space-y-4">
