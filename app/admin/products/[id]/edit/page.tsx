@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Trash2 } from "lucide-react"
+import { ArrowLeft, Trash2, Languages } from "lucide-react"
 import { ImageUpload } from "@/components/image-upload"
 
 interface Category {
@@ -38,18 +38,27 @@ interface Product {
   active: boolean
   display_order: number
   image_url?: string
+  name_en: string
+  description_en: string
+  notes_en: string
+  allergies_en: string
 }
 
 export default function EditProduct({ params }: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<Product | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+  const [editingLanguage, setEditingLanguage] = useState<"es" | "en">("es")
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    price: "",
     notes: "",
     allergies: "",
+    name_en: "",
+    description_en: "",
+    notes_en: "",
+    allergies_en: "",
+    price: "",
     category_id: "",
     subcategory_id: "",
     has_gluten: false,
@@ -83,9 +92,13 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           setFormData({
             name: productData.name,
             description: productData.description || "",
-            price: productData.price.toString(),
             notes: productData.notes || "",
             allergies: productData.allergies || "",
+            name_en: productData.name_en || "",
+            description_en: productData.description_en || "",
+            notes_en: productData.notes_en || "",
+            allergies_en: productData.allergies_en || "",
+            price: productData.price.toString(),
             category_id: productData.category_id,
             subcategory_id: productData.subcategory_id || "",
             has_gluten: productData.has_gluten,
@@ -137,7 +150,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     setIsLoading(true)
     setError("")
 
-    if (!formData.name.trim()) {
+    if (!formData.name.trim() && !formData.name_en.trim()) {
       setError("Product name is required")
       setIsLoading(false)
       return
@@ -233,6 +246,31 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           <CardHeader>
             <CardTitle className="text-2xl text-amber-800">Edit Product</CardTitle>
             <p className="text-amber-600">Update your menu item</p>
+            <div className="flex items-center gap-2 mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <Languages className="h-5 w-5 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">Editing in:</span>
+              <div className="flex gap-1 ml-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={editingLanguage === "es" ? "default" : "outline"}
+                  onClick={() => setEditingLanguage("es")}
+                  className={editingLanguage === "es" ? "bg-amber-600 hover:bg-amber-700" : ""}
+                >
+                  Español
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={editingLanguage === "en" ? "default" : "outline"}
+                  onClick={() => setEditingLanguage("en")}
+                  className={editingLanguage === "en" ? "bg-blue-600 hover:bg-blue-700" : ""}
+                >
+                  English
+                </Button>
+              </div>
+              <span className="text-xs text-gray-500 ml-auto">{editingLanguage === "es" ? "🇪🇸" : "🇬🇧"}</span>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -240,7 +278,6 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800">Basic Information</h3>
 
-                {/* Image Upload Section */}
                 <ImageUpload
                   label="Product Image"
                   currentImageUrl={formData.image_url}
@@ -249,14 +286,20 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 />
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Product Name *</Label>
+                  <Label htmlFor="name">
+                    Product Name * {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Input
                     id="name"
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    value={editingLanguage === "es" ? formData.name : formData.name_en}
+                    onChange={(e) => handleInputChange(editingLanguage === "es" ? "name" : "name_en", e.target.value)}
                     required
-                    placeholder="e.g., Cappuccino, Avocado Toast"
+                    placeholder={
+                      editingLanguage === "es"
+                        ? "e.g., Cappuccino, Tostada de Aguacate"
+                        : "e.g., Cappuccino, Avocado Toast"
+                    }
                   />
                 </div>
 
@@ -305,12 +348,16 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">
+                    Description {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Textarea
                     id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange("description", e.target.value)}
-                    placeholder="Describe your product..."
+                    value={editingLanguage === "es" ? formData.description : formData.description_en}
+                    onChange={(e) =>
+                      handleInputChange(editingLanguage === "es" ? "description" : "description_en", e.target.value)
+                    }
+                    placeholder={editingLanguage === "es" ? "Describe tu producto..." : "Describe your product..."}
                     rows={3}
                   />
                 </div>
@@ -335,23 +382,38 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 <h3 className="text-lg font-semibold text-gray-800">Additional Details</h3>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="notes">
+                    Notes {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Textarea
                     id="notes"
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange("notes", e.target.value)}
-                    placeholder="Special preparation notes, customization options, etc."
+                    value={editingLanguage === "es" ? formData.notes : formData.notes_en}
+                    onChange={(e) => handleInputChange(editingLanguage === "es" ? "notes" : "notes_en", e.target.value)}
+                    placeholder={
+                      editingLanguage === "es"
+                        ? "Notas especiales, opciones de personalización, etc."
+                        : "Special preparation notes, customization options, etc."
+                    }
                     rows={2}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="allergies">Allergies & Dietary Info</Label>
+                  <Label htmlFor="allergies">
+                    Allergies & Dietary Info{" "}
+                    {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Textarea
                     id="allergies"
-                    value={formData.allergies}
-                    onChange={(e) => handleInputChange("allergies", e.target.value)}
-                    placeholder="List allergens and dietary information..."
+                    value={editingLanguage === "es" ? formData.allergies : formData.allergies_en}
+                    onChange={(e) =>
+                      handleInputChange(editingLanguage === "es" ? "allergies" : "allergies_en", e.target.value)
+                    }
+                    placeholder={
+                      editingLanguage === "es"
+                        ? "Lista de alérgenos e información dietética..."
+                        : "List allergens and dietary information..."
+                    }
                     rows={2}
                   />
                 </div>

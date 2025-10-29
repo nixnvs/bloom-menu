@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Languages } from "lucide-react"
 import { ImageUpload } from "@/components/image-upload"
 
 interface Category {
@@ -28,12 +28,20 @@ interface Subcategory {
 export default function NewProduct() {
   const [categories, setCategories] = useState<Category[]>([])
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+  const [editingLanguage, setEditingLanguage] = useState<"es" | "en">("es")
   const [formData, setFormData] = useState({
+    // Spanish fields
     name: "",
     description: "",
-    price: "",
     notes: "",
     allergies: "",
+    // English fields
+    name_en: "",
+    description_en: "",
+    notes_en: "",
+    allergies_en: "",
+    // Language-independent fields
+    price: "",
     category_id: "",
     subcategory_id: "",
     has_gluten: false,
@@ -100,7 +108,7 @@ export default function NewProduct() {
     setError("")
 
     // Validation
-    if (!formData.name.trim()) {
+    if (!formData.name.trim() && !formData.name_en.trim()) {
       setError("Product name is required")
       setIsLoading(false)
       return
@@ -173,6 +181,33 @@ export default function NewProduct() {
           <CardHeader>
             <CardTitle className="text-2xl text-amber-800">Add New Product</CardTitle>
             <p className="text-amber-600">Create a new menu item for your café</p>
+
+            {/* Language toggle */}
+            <div className="flex items-center gap-2 mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <Languages className="h-5 w-5 text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">Editing in:</span>
+              <div className="flex gap-1 ml-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={editingLanguage === "es" ? "default" : "outline"}
+                  onClick={() => setEditingLanguage("es")}
+                  className={editingLanguage === "es" ? "bg-amber-600 hover:bg-amber-700" : ""}
+                >
+                  Español
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={editingLanguage === "en" ? "default" : "outline"}
+                  onClick={() => setEditingLanguage("en")}
+                  className={editingLanguage === "en" ? "bg-blue-600 hover:bg-blue-700" : ""}
+                >
+                  English
+                </Button>
+              </div>
+              <span className="text-xs text-gray-500 ml-auto">{editingLanguage === "es" ? "🇪🇸" : "🇬🇧"}</span>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -187,15 +222,22 @@ export default function NewProduct() {
                   disabled={isLoading}
                 />
 
+                {/* Name field */}
                 <div className="space-y-2">
-                  <Label htmlFor="name">Product Name *</Label>
+                  <Label htmlFor="name">
+                    Product Name * {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Input
                     id="name"
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    value={editingLanguage === "es" ? formData.name : formData.name_en}
+                    onChange={(e) => handleInputChange(editingLanguage === "es" ? "name" : "name_en", e.target.value)}
                     required
-                    placeholder="e.g., Cappuccino, Avocado Toast"
+                    placeholder={
+                      editingLanguage === "es"
+                        ? "e.g., Cappuccino, Tostada de Aguacate"
+                        : "e.g., Cappuccino, Avocado Toast"
+                    }
                   />
                 </div>
 
@@ -243,13 +285,18 @@ export default function NewProduct() {
                   </div>
                 )}
 
+                {/* Description field */}
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">
+                    Description {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Textarea
                     id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange("description", e.target.value)}
-                    placeholder="Describe your product..."
+                    value={editingLanguage === "es" ? formData.description : formData.description_en}
+                    onChange={(e) =>
+                      handleInputChange(editingLanguage === "es" ? "description" : "description_en", e.target.value)
+                    }
+                    placeholder={editingLanguage === "es" ? "Describe tu producto..." : "Describe your product..."}
                     rows={3}
                   />
                 </div>
@@ -273,28 +320,53 @@ export default function NewProduct() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800">Additional Details</h3>
 
+                {/* Notes field */}
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="notes">
+                    Notes {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Textarea
                     id="notes"
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange("notes", e.target.value)}
-                    placeholder="Special preparation notes, customization options, etc."
+                    value={editingLanguage === "es" ? formData.notes : formData.notes_en}
+                    onChange={(e) => handleInputChange(editingLanguage === "es" ? "notes" : "notes_en", e.target.value)}
+                    placeholder={
+                      editingLanguage === "es"
+                        ? "Notas especiales, opciones de personalización, etc."
+                        : "Special preparation notes, customization options, etc."
+                    }
                     rows={2}
                   />
-                  <p className="text-sm text-gray-500">e.g., "Available with oat milk", "Add extra shot for +€1"</p>
+                  <p className="text-sm text-gray-500">
+                    {editingLanguage === "es"
+                      ? 'e.g., "Disponible con leche de avena", "Añadir shot extra por +€1"'
+                      : 'e.g., "Available with oat milk", "Add extra shot for +€1"'}
+                  </p>
                 </div>
 
+                {/* Allergies field */}
                 <div className="space-y-2">
-                  <Label htmlFor="allergies">Allergies & Dietary Info</Label>
+                  <Label htmlFor="allergies">
+                    Allergies & Dietary Info{" "}
+                    {editingLanguage === "en" && <span className="text-blue-600">(English)</span>}
+                  </Label>
                   <Textarea
                     id="allergies"
-                    value={formData.allergies}
-                    onChange={(e) => handleInputChange("allergies", e.target.value)}
-                    placeholder="List allergens and dietary information..."
+                    value={editingLanguage === "es" ? formData.allergies : formData.allergies_en}
+                    onChange={(e) =>
+                      handleInputChange(editingLanguage === "es" ? "allergies" : "allergies_en", e.target.value)
+                    }
+                    placeholder={
+                      editingLanguage === "es"
+                        ? "Lista de alérgenos e información dietética..."
+                        : "List allergens and dietary information..."
+                    }
                     rows={2}
                   />
-                  <p className="text-sm text-gray-500">e.g., "Contains dairy, nuts", "Vegan option available"</p>
+                  <p className="text-sm text-gray-500">
+                    {editingLanguage === "es"
+                      ? 'e.g., "Contiene lácteos, frutos secos", "Opción vegana disponible"'
+                      : 'e.g., "Contains dairy, nuts", "Vegan option available"'}
+                  </p>
                 </div>
 
                 <div className="flex items-center space-x-2">
