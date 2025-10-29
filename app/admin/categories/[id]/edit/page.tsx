@@ -16,7 +16,9 @@ import { ImageUpload } from "@/components/image-upload"
 interface Category {
   id: string
   name: string
+  name_en?: string
   description?: string
+  description_en?: string
   active: boolean
   display_order: number
   image_url?: string
@@ -25,7 +27,9 @@ interface Category {
 export default function EditCategory({ params }: { params: Promise<{ id: string }> }) {
   const [category, setCategory] = useState<Category | null>(null)
   const [name, setName] = useState("")
+  const [nameEn, setNameEn] = useState("")
   const [description, setDescription] = useState("")
+  const [descriptionEn, setDescriptionEn] = useState("")
   const [active, setActive] = useState(true)
   const [displayOrder, setDisplayOrder] = useState(0)
   const [imageUrl, setImageUrl] = useState("")
@@ -43,7 +47,9 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
           const data = await response.json()
           setCategory(data)
           setName(data.name)
+          setNameEn(data.name_en || "")
           setDescription(data.description || "")
+          setDescriptionEn(data.description_en || "")
           setActive(data.active)
           setDisplayOrder(data.display_order)
           setImageUrl(data.image_url || "")
@@ -74,7 +80,9 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
 
     const updateData = {
       name,
+      name_en: nameEn || null,
       description: description || null,
+      description_en: descriptionEn || null,
       active,
       display_order: displayOrder,
       image_url: imageUrl || null,
@@ -170,30 +178,58 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
                 disabled={isLoading}
               />
 
-              <div className="space-y-2">
-                <Label htmlFor="name">Category Name *</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  placeholder="e.g., Drinks, Food, Desserts"
-                />
+              <div className="space-y-4 border-l-4 border-amber-500 pl-4">
+                <h3 className="text-lg font-semibold text-amber-800">Spanish (Español)</h3>
+
+                <div className="space-y-2">
+                  <Label htmlFor="name">Category Name (Spanish) *</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    placeholder="e.g., Bebidas, Comidas, Postres"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description (Spanish)</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="e.g., Disponible de 8:00 AM a 10:00 PM"
+                    rows={3}
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="e.g., Disponible de 8:00 AM a 10:00 PM"
-                  rows={3}
-                />
-                <p className="text-sm text-gray-500">
-                  Optional description for the category (e.g., schedule, special notes)
-                </p>
+              <div className="space-y-4 border-l-4 border-blue-500 pl-4">
+                <h3 className="text-lg font-semibold text-blue-800">English</h3>
+
+                <div className="space-y-2">
+                  <Label htmlFor="nameEn">Category Name (English)</Label>
+                  <Input
+                    id="nameEn"
+                    type="text"
+                    value={nameEn}
+                    onChange={(e) => setNameEn(e.target.value)}
+                    placeholder="e.g., Drinks, Food, Desserts"
+                  />
+                  <p className="text-sm text-gray-500">Leave empty to show Spanish name when English is selected</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="descriptionEn">Description (English)</Label>
+                  <Textarea
+                    id="descriptionEn"
+                    value={descriptionEn}
+                    onChange={(e) => setDescriptionEn(e.target.value)}
+                    placeholder="e.g., Available from 8:00 AM to 10:00 PM"
+                    rows={3}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
