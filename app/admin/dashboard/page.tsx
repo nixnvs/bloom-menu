@@ -23,6 +23,10 @@ interface Product {
   category_id: string
   category_name: string
   subcategory_id: string
+  name_en?: string
+  description_en?: string
+  notes_en?: string
+  allergies_en?: string
 }
 
 interface Category {
@@ -138,6 +142,10 @@ export default function AdminDashboard() {
   const availableSubcategories = selectedCategory
     ? subcategories.filter((sub) => sub.category_id === selectedCategory)
     : subcategories
+
+  const hasEnglishTranslation = (product: Product) => {
+    return !!(product.name_en && product.name_en.trim())
+  }
 
   if (loading) {
     return (
@@ -313,6 +321,21 @@ export default function AdminDashboard() {
                             <Badge variant={product.active ? "default" : "secondary"}>
                               {product.active ? "Active" : "Inactive"}
                             </Badge>
+                            <div className="flex items-center gap-1">
+                              <Badge variant="outline" className="bg-amber-50 border-amber-300 text-amber-700">
+                                ES
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  hasEnglishTranslation(product)
+                                    ? "bg-blue-50 border-blue-300 text-blue-700"
+                                    : "bg-gray-50 border-gray-300 text-gray-400"
+                                }
+                              >
+                                EN
+                              </Badge>
+                            </div>
                           </div>
                           <p className="text-gray-600 mb-2">{product.description}</p>
                           <div className="flex items-center gap-4 text-sm text-gray-500">
