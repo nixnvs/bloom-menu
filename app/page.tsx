@@ -8,15 +8,18 @@ import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useTranslation } from "@/lib/i18n"
-import { translateText } from "@/lib/translation"
 
 interface Product {
   id: string
   name: string
+  name_en?: string
   description: string
+  description_en?: string
   price: number
   notes: string
+  notes_en?: string
   allergies: string
+  allergies_en?: string
   has_gluten: boolean
   active: boolean
   category_id: string
@@ -27,7 +30,9 @@ interface Product {
 interface Category {
   id: string
   name: string
-  description?: string // Added description field to Category interface
+  name_en?: string
+  description?: string
+  description_en?: string
   active: boolean
   image_url?: string
 }
@@ -35,9 +40,11 @@ interface Category {
 interface Subcategory {
   id: string
   name: string
+  name_en?: string
   active: boolean
   category_id: string
-  description?: string // Added description field to Subcategory interface
+  description?: string
+  description_en?: string
 }
 
 interface AboutUsConfig {
@@ -81,23 +88,14 @@ export default function BloomCafe() {
   const [aboutUsConfig, setAboutUsConfig] = useState<AboutUsConfig | null>(null)
   const [aboutUsLoading, setAboutUsLoading] = useState(false)
   const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set())
-  const [cafeConfig, setCafeConfig] = useState<{ cafe_name?: string; cafe_description?: string } | null>(null)
+  const [cafeConfig, setCafeConfig] = useState<{
+    cafe_name?: string
+    cafe_description?: string
+    cafe_description_en?: string
+  } | null>(null)
 
   const { language, setLanguage } = useLanguage()
   const { t } = useTranslation(language)
-
-  const [translatedContent, setTranslatedContent] = useState<{
-    categories: Map<string, { name: string; description?: string }>
-    subcategories: Map<string, { name: string; description?: string }>
-    products: Map<string, { name: string; description: string; notes: string; allergies: string }>
-    cafeDescription: string
-  }>({
-    categories: new Map(),
-    subcategories: new Map(),
-    products: new Map(),
-    cafeDescription: "",
-  })
-  const [isTranslating, setIsTranslating] = useState(false)
 
   useEffect(() => {
     fetchCafeConfig()
@@ -111,22 +109,6 @@ export default function BloomCafe() {
       fetchAboutUsData()
     }
   }, [currentView])
-
-  useEffect(() => {
-    if (language === "es") {
-      // Reset translations when switching back to Spanish (original language)
-      setTranslatedContent({
-        categories: new Map(),
-        subcategories: new Map(),
-        products: new Map(),
-        cafeDescription: "",
-      })
-      return
-    }
-
-    // Translate content when switching to English
-    translateAllContent()
-  }, [language, categories, subcategories, products, cafeConfig])
 
   const fetchMenuData = async () => {
     setLoading(true)
@@ -232,123 +214,42 @@ export default function BloomCafe() {
   }
 
   const getCategoryName = (category: Category) => {
-    if (language === "es") return category.name
-    return translatedContent.categories.get(category.id)?.name || category.name
+    return language === "en" && category.name_en ? category.name_en : category.name
   }
 
   const getCategoryDescription = (category: Category) => {
-    if (language === "es") return category.description
-
-    const translated = translatedContent.categories.get(category.id)?.description
-    if (translated) return translated
-
-    // Fallback to original description
-    return category.description
+    return language === "en" && category.description_en ? category.description_en : category.description
   }
 
   const getSubcategoryName = (subcategory: Subcategory) => {
-    if (language === "es") return subcategory.name
-    return translatedContent.subcategories.get(subcategory.id)?.name || subcategory.name
+    return language === "en" && subcategory.name_en ? subcategory.name_en : subcategory.name
   }
 
   const getSubcategoryDescription = (subcategory: Subcategory) => {
-    if (language === "es") return subcategory.description
-    return translatedContent.subcategories.get(subcategory.id)?.description || subcategory.description
+    return language === "en" && subcategory.description_en ? subcategory.description_en : subcategory.description
   }
 
   const getProductName = (product: Product) => {
-    if (language === "es") return product.name
-    return translatedContent.products.get(product.id)?.name || product.name
+    return language === "en" && product.name_en ? product.name_en : product.name
   }
 
   const getProductDescription = (product: Product) => {
-    if (language === "es") return product.description
-    return translatedContent.products.get(product.id)?.description || product.description
+    return language === "en" && product.description_en ? product.description_en : product.description
   }
 
   const getProductNotes = (product: Product) => {
-    if (language === "es") return product.notes
-    return translatedContent.products.get(product.id)?.notes || product.notes
+    return language === "en" && product.notes_en ? product.notes_en : product.notes
   }
 
   const getProductAllergies = (product: Product) => {
-    if (language === "es") return product.allergies
-    return translatedContent.products.get(product.id)?.allergies || product.allergies
+    return language === "en" && product.allergies_en ? product.allergies_en : product.allergies
   }
 
   const getCafeDescription = () => {
-    if (language === "es") return cafeConfig?.cafe_description || t("tagline")
-    return translatedContent.cafeDescription || cafeConfig?.cafe_description || t("tagline")
-  }
-
-  const translateAllContent = async () => {
-    if (language === "es") return // Don't translate if in Spanish
-
-    setIsTranslating(true)
-    console.log("[v0] Starting translation to", language)
-
-    try {
-      // Translate categories
-      const categoryTranslations = new Map()
-      for (const category of categories) {
-        const translatedName = await translateText(category.name, language, "es")
-        const translatedDescription = category.description
-          ? await translateText(category.description, language, "es")
-          : undefined
-        categoryTranslations.set(category.id, {
-          name: translatedName,
-          description: translatedDescription,
-        })
-      }
-
-      // Translate subcategories
-      const subcategoryTranslations = new Map()
-      for (const subcategory of subcategories) {
-        const translatedName = await translateText(subcategory.name, language, "es")
-        const translatedDescription = subcategory.description
-          ? await translateText(subcategory.description, language, "es")
-          : undefined
-        subcategoryTranslations.set(subcategory.id, {
-          name: translatedName,
-          description: translatedDescription,
-        })
-      }
-
-      // Translate products
-      const productTranslations = new Map()
-      for (const product of products) {
-        const translatedName = await translateText(product.name, language, "es")
-        const translatedDescription = product.description
-          ? await translateText(product.description, language, "es")
-          : ""
-        const translatedNotes = product.notes ? await translateText(product.notes, language, "es") : ""
-        const translatedAllergies = product.allergies ? await translateText(product.allergies, language, "es") : ""
-
-        productTranslations.set(product.id, {
-          name: translatedName,
-          description: translatedDescription,
-          notes: translatedNotes,
-          allergies: translatedAllergies,
-        })
-      }
-
-      // Translate cafe description
-      const cafeDescription = cafeConfig?.cafe_description || t("tagline")
-      const translatedCafeDescription = await translateText(cafeDescription, language, "es")
-
-      setTranslatedContent({
-        categories: categoryTranslations,
-        subcategories: subcategoryTranslations,
-        products: productTranslations,
-        cafeDescription: translatedCafeDescription,
-      })
-
-      console.log("[v0] Translation complete")
-    } catch (error) {
-      console.error("[v0] Translation error:", error)
-    } finally {
-      setIsTranslating(false)
+    if (language === "en" && cafeConfig?.cafe_description_en) {
+      return cafeConfig.cafe_description_en
     }
+    return cafeConfig?.cafe_description || t("tagline")
   }
 
   const renderHome = () => (
@@ -460,14 +361,6 @@ export default function BloomCafe() {
           </div>
         ) : (
           <>
-            {isTranslating && language !== "es" && (
-              <div className="text-center py-4 bg-bloom-cream/50 rounded-lg">
-                <p className="text-sm text-bloom-blue/70">
-                  {language === "en" ? "Translating menu..." : "Traduciendo menú..."}
-                </p>
-              </div>
-            )}
-
             {categories
               .filter((category) => category.active)
               .map((category) => {
@@ -599,14 +492,6 @@ export default function BloomCafe() {
         </div>
 
         <div className="p-3 md:p-4 space-y-4 md:space-y-6">
-          {isTranslating && language !== "es" && (
-            <div className="text-center py-4 bg-bloom-cream/50 rounded-lg">
-              <p className="text-sm text-bloom-blue/70">
-                {language === "en" ? "Translating products..." : "Traduciendo productos..."}
-              </p>
-            </div>
-          )}
-
           {categoryProducts.length === 0 && categorySubcategories.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-bloom-blue/70">{t("noProducts")}</p>

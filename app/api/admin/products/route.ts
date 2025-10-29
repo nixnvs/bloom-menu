@@ -49,10 +49,14 @@ export async function POST(request: NextRequest) {
       .from("products")
       .insert({
         name: body.name,
+        name_en: body.name_en || null,
         description: body.description || null,
+        description_en: body.description_en || null,
         price: body.price,
         notes: body.notes || null,
+        notes_en: body.notes_en || null,
         allergies: body.allergies || null,
+        allergies_en: body.allergies_en || null,
         category_id: body.category_id,
         subcategory_id: body.subcategory_id || null,
         has_gluten: body.has_gluten ?? false,

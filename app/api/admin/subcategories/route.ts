@@ -41,8 +41,10 @@ export async function POST(request: NextRequest) {
       .from("subcategories")
       .insert({
         name: body.name,
+        name_en: body.name_en || null,
         category_id: body.category_id,
         description: body.description || null,
+        description_en: body.description_en || null,
         active: body.active ?? true,
         display_order: body.display_order ?? 0,
         image_url: body.image_url || null,

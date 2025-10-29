@@ -30,8 +30,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       .from("subcategories")
       .update({
         name: body.name,
+        name_en: body.name_en || null,
         category_id: body.category_id,
         description: body.description || null,
+        description_en: body.description_en || null,
         active: body.active,
         display_order: body.display_order,
         image_url: body.image_url || null,
