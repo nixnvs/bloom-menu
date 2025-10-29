@@ -93,6 +93,7 @@ export default function BloomCafe() {
     cafe_description?: string
     cafe_description_en?: string
   } | null>(null)
+  const [cafeConfigLoading, setConfigLoading] = useState(true)
 
   const { language, setLanguage } = useLanguage()
   const { t } = useTranslation(language)
@@ -161,6 +162,7 @@ export default function BloomCafe() {
   }
 
   const fetchCafeConfig = async () => {
+    setConfigLoading(true)
     try {
       console.log("[v0] Fetching cafe configuration...")
       const response = await fetch("/api/admin/configuration")
@@ -175,6 +177,8 @@ export default function BloomCafe() {
       }
     } catch (error) {
       console.error("[v0] Error fetching cafe configuration:", error)
+    } finally {
+      setConfigLoading(false)
     }
   }
 
@@ -271,24 +275,29 @@ export default function BloomCafe() {
           <div className="w-48 h-20 mx-auto relative">
             <Image src="/images/bloom-logo.png" alt="Bloom Logo" fill className="object-contain" priority />
           </div>
-          <div className="text-bloom-blue/80 text-base font-light tracking-wide">
-            {(() => {
-              const description = getCafeDescription()
-              // Check if description contains "by" to split it
-              const byIndex = description.toLowerCase().indexOf(" by ")
-              if (byIndex !== -1) {
-                const mainText = description.substring(0, byIndex)
-                const byText = description.substring(byIndex + 1) // +1 to skip the space
-                return (
-                  <>
-                    <div className="text-balance">{mainText}</div>
-                    <div className="text-sm mt-1 text-bloom-blue/70">{byText}</div>
-                  </>
-                )
-              }
-              return <div className="text-balance">{description}</div>
-            })()}
-          </div>
+          {cafeConfigLoading ? (
+            <div className="text-bloom-blue/80 text-base font-light tracking-wide h-12 flex items-center justify-center">
+              <div className="w-48 h-4 bg-bloom-beige/30 rounded animate-pulse"></div>
+            </div>
+          ) : (
+            <div className="text-bloom-blue/80 text-base font-light tracking-wide">
+              {(() => {
+                const description = getCafeDescription()
+                const byIndex = description.toLowerCase().indexOf(" by ")
+                if (byIndex !== -1) {
+                  const mainText = description.substring(0, byIndex)
+                  const byText = description.substring(byIndex + 1)
+                  return (
+                    <>
+                      <div className="text-balance">{mainText}</div>
+                      <div className="text-sm mt-1 text-bloom-blue/70">{byText}</div>
+                    </>
+                  )
+                }
+                return <div className="text-balance">{description}</div>
+              })()}
+            </div>
+          )}
         </div>
 
         <div className="pt-4 space-y-4">
