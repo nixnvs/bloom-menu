@@ -318,6 +318,22 @@ export default function BloomCafe() {
           >
             {t("learnMore")}
           </Button>
+
+          <a
+            href="https://www.tripadvisor.es/Restaurant_Review-g187438-d33993190-Reviews-Bloom-Malaga_Costa_del_Sol_Province_of_Malaga_Andalucia.html?m=69573#REVIEWS"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block"
+          >
+            <Button
+              variant="outline"
+              className="w-full px-4 py-2 text-sm font-medium border-bloom-blue/30 text-bloom-blue hover:bg-bloom-blue/5 hover:border-bloom-blue/50 shadow-sm transition-all duration-300 hover:shadow-md rounded-lg btn-chic flex items-center justify-center gap-2 bg-transparent"
+              size="sm"
+            >
+              <span>{language === "en" ? "Leave us a review!" : "¡Déjanos una reseña!"}</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Button>
+          </a>
         </div>
       </div>
 
@@ -326,6 +342,7 @@ export default function BloomCafe() {
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => setLanguage(language === "en" ? "es" : "en")}
             className="text-bloom-blue/50 hover:text-bloom-blue hover:bg-bloom-cream/50 transition-all duration-300 btn-chic"
           >
             <Settings className="w-4 h-4 mr-2" />
