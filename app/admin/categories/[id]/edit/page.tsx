@@ -25,6 +25,7 @@ interface Category {
 }
 
 export default function EditCategory({ params }: { params: Promise<{ id: string }> }) {
+  const [currentLang, setCurrentLang] = useState<"es" | "en">("es")
   const [category, setCategory] = useState<Category | null>(null)
   const [name, setName] = useState("")
   const [nameEn, setNameEn] = useState("")
@@ -67,7 +68,6 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
   }, [params])
 
   const handleImageChange = (url: string | null) => {
-    console.log("[v0] Image URL changed to:", url)
     setImageUrl(url || "")
   }
 
@@ -87,7 +87,6 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
       display_order: displayOrder,
       image_url: imageUrl || null,
     }
-    console.log("[v0] Submitting category update with data:", updateData)
 
     try {
       const response = await fetch(`/api/admin/categories/${category.id}`, {
@@ -97,8 +96,6 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
       })
 
       if (response.ok) {
-        const updatedCategory = await response.json()
-        console.log("[v0] Category updated successfully:", updatedCategory)
         router.push("/admin/dashboard?tab=categories")
       } else {
         const data = await response.json()
@@ -171,6 +168,27 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="flex items-center justify-center gap-2 p-1 bg-gray-100 rounded-lg w-fit mx-auto">
+                <button
+                  type="button"
+                  onClick={() => setCurrentLang("es")}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                    currentLang === "es" ? "bg-amber-600 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  ES
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentLang("en")}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                    currentLang === "en" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  EN
+                </button>
+              </div>
+
               <ImageUpload
                 label="Category Image"
                 currentImageUrl={imageUrl}
@@ -178,58 +196,35 @@ export default function EditCategory({ params }: { params: Promise<{ id: string 
                 disabled={isLoading}
               />
 
-              <div className="space-y-4 border-l-4 border-amber-500 pl-4">
-                <h3 className="text-lg font-semibold text-amber-800">Spanish (Español)</h3>
-
-                <div className="space-y-2">
-                  <Label htmlFor="name">Category Name (Spanish) *</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    placeholder="e.g., Bebidas, Comidas, Postres"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description (Spanish)</Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="e.g., Disponible de 8:00 AM a 10:00 PM"
-                    rows={3}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Category Name {currentLang === "es" ? "(Español)" : "(English)"} *</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={currentLang === "es" ? name : nameEn}
+                  onChange={(e) => (currentLang === "es" ? setName(e.target.value) : setNameEn(e.target.value))}
+                  required={currentLang === "es"}
+                  placeholder={
+                    currentLang === "es" ? "e.g., Bebidas, Comidas, Postres" : "e.g., Drinks, Food, Desserts"
+                  }
+                />
               </div>
 
-              <div className="space-y-4 border-l-4 border-blue-500 pl-4">
-                <h3 className="text-lg font-semibold text-blue-800">English</h3>
-
-                <div className="space-y-2">
-                  <Label htmlFor="nameEn">Category Name (English)</Label>
-                  <Input
-                    id="nameEn"
-                    type="text"
-                    value={nameEn}
-                    onChange={(e) => setNameEn(e.target.value)}
-                    placeholder="e.g., Drinks, Food, Desserts"
-                  />
-                  <p className="text-sm text-gray-500">Leave empty to show Spanish name when English is selected</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="descriptionEn">Description (English)</Label>
-                  <Textarea
-                    id="descriptionEn"
-                    value={descriptionEn}
-                    onChange={(e) => setDescriptionEn(e.target.value)}
-                    placeholder="e.g., Available from 8:00 AM to 10:00 PM"
-                    rows={3}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description {currentLang === "es" ? "(Español)" : "(English)"}</Label>
+                <Textarea
+                  id="description"
+                  value={currentLang === "es" ? description : descriptionEn}
+                  onChange={(e) =>
+                    currentLang === "es" ? setDescription(e.target.value) : setDescriptionEn(e.target.value)
+                  }
+                  placeholder={
+                    currentLang === "es"
+                      ? "e.g., Disponible de 8:00 AM a 10:00 PM"
+                      : "e.g., Available from 8:00 AM to 10:00 PM"
+                  }
+                  rows={3}
+                />
               </div>
 
               <div className="space-y-2">

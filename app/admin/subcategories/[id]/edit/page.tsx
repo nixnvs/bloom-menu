@@ -22,19 +22,24 @@ interface Category {
 interface Subcategory {
   id: string
   name: string
+  name_en?: string
   active: boolean
   display_order: number
   category_id: string
   image_url?: string
   description?: string
+  description_en?: string
 }
 
 export default function EditSubcategory({ params }: { params: Promise<{ id: string }> }) {
+  const [currentLang, setCurrentLang] = useState<"es" | "en">("es")
   const [subcategory, setSubcategory] = useState<Subcategory | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [name, setName] = useState("")
+  const [nameEn, setNameEn] = useState("")
   const [categoryId, setCategoryId] = useState("")
   const [description, setDescription] = useState("")
+  const [descriptionEn, setDescriptionEn] = useState("")
   const [active, setActive] = useState(true)
   const [displayOrder, setDisplayOrder] = useState(0)
   const [imageUrl, setImageUrl] = useState("")
@@ -59,8 +64,10 @@ export default function EditSubcategory({ params }: { params: Promise<{ id: stri
           setSubcategory(subcategoryData)
           setCategories(categoriesData)
           setName(subcategoryData.name)
+          setNameEn(subcategoryData.name_en || "")
           setCategoryId(subcategoryData.category_id)
           setDescription(subcategoryData.description || "")
+          setDescriptionEn(subcategoryData.description_en || "")
           setActive(subcategoryData.active)
           setDisplayOrder(subcategoryData.display_order)
           setImageUrl(subcategoryData.image_url || "")
@@ -94,8 +101,10 @@ export default function EditSubcategory({ params }: { params: Promise<{ id: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
+          name_en: nameEn || null,
           category_id: categoryId,
           description: description || null,
+          description_en: descriptionEn || null,
           active,
           display_order: displayOrder,
           image_url: imageUrl || null,
@@ -177,6 +186,27 @@ export default function EditSubcategory({ params }: { params: Promise<{ id: stri
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="flex items-center justify-center gap-2 p-1 bg-gray-100 rounded-lg w-fit mx-auto">
+                <button
+                  type="button"
+                  onClick={() => setCurrentLang("es")}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                    currentLang === "es" ? "bg-amber-600 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  ES
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentLang("en")}
+                  className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                    currentLang === "en" ? "bg-blue-600 text-white shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  EN
+                </button>
+              </div>
+
               <ImageUpload
                 label="Subcategory Image"
                 currentImageUrl={imageUrl}
@@ -201,24 +231,30 @@ export default function EditSubcategory({ params }: { params: Promise<{ id: stri
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">Subcategory Name *</Label>
+                <Label htmlFor="name">Subcategory Name {currentLang === "es" ? "(Español)" : "(English)"} *</Label>
                 <Input
                   id="name"
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  placeholder="e.g., Coffee, Sweet, Wine"
+                  value={currentLang === "es" ? name : nameEn}
+                  onChange={(e) => (currentLang === "es" ? setName(e.target.value) : setNameEn(e.target.value))}
+                  required={currentLang === "es"}
+                  placeholder={currentLang === "es" ? "e.g., Café, Dulce, Vino" : "e.g., Coffee, Sweet, Wine"}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Description {currentLang === "es" ? "(Español)" : "(English)"}</Label>
                 <Textarea
                   id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="e.g., Disponible de 8:00 AM a 12:00 PM"
+                  value={currentLang === "es" ? description : descriptionEn}
+                  onChange={(e) =>
+                    currentLang === "es" ? setDescription(e.target.value) : setDescriptionEn(e.target.value)
+                  }
+                  placeholder={
+                    currentLang === "es"
+                      ? "e.g., Disponible de 8:00 AM a 12:00 PM"
+                      : "e.g., Available from 8:00 AM to 12:00 PM"
+                  }
                   rows={3}
                 />
                 <p className="text-sm text-gray-500">
