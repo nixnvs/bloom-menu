@@ -270,9 +270,9 @@ export default function BloomCafe() {
         </Button>
       </div>
 
-      <div className="text-center space-y-8 max-w-sm w-full">
-        <div className="space-y-6">
-          <div className="w-48 h-20 mx-auto relative">
+      <div className="text-center space-y-4 max-w-sm w-full">
+        <div className="space-y-3">
+          <div className="w-64 h-28 mx-auto relative">
             <Image src="/images/bloom-logo.png" alt="Bloom Logo" fill className="object-contain" priority />
           </div>
           {cafeConfigLoading ? (
@@ -300,7 +300,7 @@ export default function BloomCafe() {
           )}
         </div>
 
-        <div className="pt-4 space-y-4">
+        <div className="pt-2 space-y-3">
           <Button
             onClick={() => setCurrentView("menu")}
             variant="outline"
