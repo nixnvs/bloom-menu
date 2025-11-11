@@ -270,9 +270,9 @@ export default function BloomCafe() {
         </Button>
       </div>
 
-      <div className="text-center space-y-4 max-w-sm w-full">
-        <div className="space-y-3">
-          <div className="w-64 h-28 mx-auto relative">
+      <div className="text-center space-y-8 max-w-sm w-full">
+        <div className="space-y-6">
+          <div className="w-48 h-20 mx-auto relative">
             <Image src="/images/bloom-logo.png" alt="Bloom Logo" fill className="object-contain" priority />
           </div>
           {cafeConfigLoading ? (
@@ -300,7 +300,7 @@ export default function BloomCafe() {
           )}
         </div>
 
-        <div className="pt-2 space-y-3">
+        <div className="pt-4 space-y-4">
           <Button
             onClick={() => setCurrentView("menu")}
             variant="outline"
@@ -310,14 +310,15 @@ export default function BloomCafe() {
             {t("viewMenu")}
           </Button>
 
-          <Button
-            onClick={() => setCurrentView("about")}
-            variant="outline"
-            className="px-4 py-2 text-sm font-medium border-bloom-blue/30 text-bloom-blue hover:bg-bloom-blue/5 hover:border-bloom-blue/50 shadow-sm transition-all duration-300 hover:shadow-md rounded-lg btn-chic"
-            size="sm"
-          >
-            {t("learnMore")}
-          </Button>
+          <a href="https://bloominmalaga.com/about" target="_blank" rel="noopener noreferrer" className="block">
+            <Button
+              variant="outline"
+              className="w-full px-4 py-2 text-sm font-medium border-bloom-blue/30 text-bloom-blue hover:bg-bloom-blue/5 hover:border-bloom-blue/50 shadow-sm transition-all duration-300 hover:shadow-md rounded-lg btn-chic bg-transparent"
+              size="sm"
+            >
+              {t("learnMore")}
+            </Button>
+          </a>
 
           <a href="https://g.page/r/CQZI_cyKcW1CEAI/review" target="_blank" rel="noopener noreferrer" className="block">
             <Button
